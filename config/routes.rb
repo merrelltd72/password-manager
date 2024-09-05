@@ -14,4 +14,11 @@ Rails.application.routes.draw do
   #login route
   post '/sessions' => 'sessions#create' 
 
+  #Account routes
+  get '/accounts' => 'accounts#index'
+  post '/accounts' => 'accounts#create'
+  get '/accounts/:id' => 'accounts#show'
+  patch '/accounts/:id' => 'accounts#update'
+  delete '/accounts/:id' => 'accounts#destroy'
+
 end
