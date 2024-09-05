@@ -1,4 +1,5 @@
 class AccountsController < ApplicationController
+  before_action :authenticate_user
 
   # Show all accounts
   def index
