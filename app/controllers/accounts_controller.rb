@@ -3,7 +3,7 @@ class AccountsController < ApplicationController
 
   # Show all accounts
   def index
-    @accounts = Account.all
+    @accounts = current_user.accounts
     render json: @accounts
   end
 
@@ -25,6 +25,12 @@ class AccountsController < ApplicationController
       notes: params[:notes]
     )
     render :show
+  end
+
+  def destroy
+    @account = current_user.account.find_by(id: params[:id])
+    @account.destroy
+    render json: { message: "Account successfully deleted!" }
   end
 
 end
