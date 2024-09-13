@@ -1,5 +1,6 @@
 class ApplicationController < ActionController::Base
-  protect_from_forgery with: :exception, unless: -> { request.format.json? }
+  # protect_from_forgery with: :exception, unless: -> { request.format.json? }
+  protect_from_forgery with: :null_session
 
   def current_user
     auth_headers = request.headers["Authorization"]
@@ -21,7 +22,7 @@ class ApplicationController < ActionController::Base
 
   def authenticate_user
     unless current_user
-      rendor json: {}, status: unauthorized
+      render json: {}, status: :unauthorized
     end
   end
 

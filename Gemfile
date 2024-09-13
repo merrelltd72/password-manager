@@ -5,6 +5,9 @@ ruby "3.3.1"
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
 gem "rails", "~> 7.1.3", ">= 7.1.3.4"
 
+# Shim to load environment variables from .env into ENV in development. https://github.com/bkeepers/dotenv
+gem 'dotenv', groups: [:development, :test, :production]
+
 # The original asset pipeline for Rails [https://github.com/rails/sprockets-rails]
 gem "sprockets-rails"
 
@@ -38,6 +41,12 @@ gem "bcrypt", "~> 3.1.7"
 gem "jwt"
 
 gem "rack-cors"
+
+# OmniAuth is a library that standardizes multi-provider authentication for web applications. https://github.com/omniauth/omniauth
+gem 'omniauth'
+
+# Strategy to authenticate with Google via OAuth2 in OmniAuth. https://github.com/zquestz/omniauth-google-oauth2
+gem 'omniauth-google-oauth2'
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem "tzinfo-data", platforms: %i[ windows jruby ]

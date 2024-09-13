@@ -12,8 +12,11 @@ Rails.application.routes.draw do
   post '/users' => 'users#create'
 
   #login route
-  post '/sessions' => 'sessions#create' 
+  post '/sessions' => 'sessions#create'
 
+  #Google login route
+  get '/auth/google_oauth2/callback' => 'sessions#create'
+  
   #Account routes
   get '/accounts' => 'accounts#index'
   post '/accounts' => 'accounts#create'
