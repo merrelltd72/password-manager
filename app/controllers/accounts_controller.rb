@@ -27,6 +27,23 @@ class AccountsController < ApplicationController
     render :show
   end
 
+  def update
+    @account = Account.find_by(id: params[:id])
+    @account.update(
+      category_id: params[:category_id] || @account.category_id,
+      web_app_name: params[:web_app_name] || @account.web_app_name,
+      url: params[:url] || @account.url,
+      username: params[:username] || @account.username,
+      password: params[:password] || @account.password,
+      notes: params[:notes] || @account.notes
+    )
+    if @account.valid?
+      render json: {message: "Account succressfully updated!"}, status: 200
+    else
+      render json: {erros: @account.errors.full_messages }, status: 422
+    end
+  end
+
   def destroy
     @account = current_user.account.find_by(id: params[:id])
     @account.destroy
