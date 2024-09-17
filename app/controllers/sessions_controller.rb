@@ -9,6 +9,8 @@ class SessionsController < ApplicationController
         username: auth.info.name, 
         email: auth.info.email,
         provider: auth.provider,
+      )
+      user.assign_attributes(
         token: auth.credentials.token,
         uid: auth.uid
       )
@@ -23,7 +25,7 @@ class SessionsController < ApplicationController
         "HS256"
       )
       # render json: { jwt: jwt, email: user.email, user_id: user.id }
-      redirect_to "http://localhost:5173/accounts?jwt=#{jwt}", notice: 'Signed in with Google successfully!'
+      redirect_to "http://localhost:5173/?jwt=#{jwt}", notice: 'Signed in with Google successfully!'
     else
       user = User.find_by(email: params[:email])
       if user && user.authenticate(params[:password])
