@@ -1,24 +1,14 @@
-# README
+# Password Manager
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+Welcome to the Password Management Application! This tool will help you securely manage and store your passwords with complete control over its deployment and management. The application has a React frontend and Ruby on Rails backend. Currently it is under construction.
 
-Things you may want to cover:
+## Features
 
-* Ruby version
+- **Secure Password Storage:** Encrypts passwords using advanced algorithms.
+- **Customizable Deployment:** Allows users to deploy on various environments (local, server, cloud).
+- **User Management:** Supports multiple user accounts with different access levels.
+- **Backup & Recovery:** Provides options for data backup and recovery.
+- **Multi-Factor Authentication:** Enhances security with additional authentication layers.
+- **Import/Export Passwords:** Easily import and export password data for convenient management.
 
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+The frontend for this application can be found here -> https://github.com/merrelltd72/password-manager-frontend
