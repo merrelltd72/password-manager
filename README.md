@@ -5,8 +5,12 @@ Welcome to the Password Management Application! This tool will help you securely
 ## Features
 
 - **Secure Password Storage:** Encrypts passwords using advanced algorithms.
-- **Customizable Deployment:** Allows users to deploy on various environments (local, server, cloud).
 - **User Management:** Supports multiple user accounts with different access levels.
+
+## Planned Features
+
+- **Customizable Deployment:** Allows users to deploy on various environments (local, server, cloud).
+
 - **Backup & Recovery:** Provides options for data backup and recovery.
 - **Multi-Factor Authentication:** Enhances security with additional authentication layers.
 - **Import/Export Passwords:** Easily import and export password data for convenient management.
