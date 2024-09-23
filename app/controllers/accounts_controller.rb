@@ -3,7 +3,7 @@ class AccountsController < ApplicationController
 
   # Show all accounts
   def index
-    @accounts = current_user.accounts
+    @accounts = current_user.accounts.paginate(page: params[:page], per_page: 6)
     render json: @accounts
   end
 

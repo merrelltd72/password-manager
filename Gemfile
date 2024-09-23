@@ -48,6 +48,9 @@ gem 'omniauth'
 # Strategy to authenticate with Google via OAuth2 in OmniAuth. https://github.com/zquestz/omniauth-google-oauth2
 gem 'omniauth-google-oauth2'
 
+# https://github.com/mislav/will_paginate?tab=readme-ov-file
+gem 'will_paginate', '~> 4.0'
+
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem "tzinfo-data", platforms: %i[ windows jruby ]
 
