@@ -37,11 +37,17 @@ class SessionsController < ApplicationController
           Rails.application.credentials.fetch(:secret_key_base), #the secret key
           "HS256" # the encryption algorithm
           )
-        render json: { jwt: jwt, email: user.email, user_id: user.id }, status: :created
+        cookies.signed[:jwt] = { value: jwt, httponly: true }
+        render json: { email: user.email, user_id: user.id }, status: :created
       else
         render json: {}, status: :unauthorized
       end
     end
+  end
+
+  def destroy
+    cookies.delete(:jwt)
+    redner json: { message: "Logged out successfully" }
   end
 
 end

@@ -13,6 +13,8 @@ Rails.application.routes.draw do
 
   #login route
   post '/sessions' => 'sessions#create'
+  #logout route
+  delete '/sessions' => 'sessions#destroy'
 
   #Google login route
   get '/auth/google_oauth2/callback' => 'sessions#create'
