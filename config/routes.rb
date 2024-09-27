@@ -13,6 +13,8 @@ Rails.application.routes.draw do
 
   #login route
   post '/sessions' => 'sessions#create'
+  # check if user is logged in route
+  get '/isLoggedIn' => 'sessions#isloggedin'
   #logout route
   delete '/sessions' => 'sessions#destroy'
 

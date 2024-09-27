@@ -15,7 +15,6 @@ class SessionsController < ApplicationController
         uid: auth.uid
       )
       user.save(validate: false)
-      pp user
       jwt = JWT.encode(
         {
         user_id: user.id,
@@ -24,8 +23,9 @@ class SessionsController < ApplicationController
         Rails.application.credentials.fetch(:secret_key_base),
         "HS256"
       )
+      cookies.signed[:jwt] = { value: jwt, httponly: true}
       # render json: { jwt: jwt, email: user.email, user_id: user.id }
-      redirect_to "http://localhost:5173/?jwt=#{jwt}", notice: 'Signed in with Google successfully!'
+      redirect_to "http://localhost:5173/accounts", notice: 'Signed in with Google successfully!'
     else
       user = User.find_by(email: params[:email])
       if user && user.authenticate(params[:password])
@@ -47,7 +47,24 @@ class SessionsController < ApplicationController
 
   def destroy
     cookies.delete(:jwt)
-    redner json: { message: "Logged out successfully" }
+    render json: { message: "Logged out successfully" }
+  end
+
+  def isloggedin
+    if current_user
+      token = cookies.signed[:jwt]
+      decoded_token = JWT.decode(
+        token,
+        Rails.application.credentials.fetch(:secret_key_base),
+        true,
+        { algorithm: "HS256" }
+        )
+      User.find_by(id: decoded_token[0]["user_id"])
+      user = User.find_by(id: decoded_token[0]["user_id"]) 
+      render json: { logged_in: true, user: user }, status: 200
+    else
+      render json: { logged_in: false }, status: :unauthorized
+    end
   end
 
 end
