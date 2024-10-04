@@ -4,6 +4,7 @@ class AccountsController < ApplicationController
   # Show all accounts
   def index
     @accounts = current_user.accounts.paginate(page: params[:page], per_page: 6)
+    @accounts.sort_by { |account| [account.web_app_name] }
     render json: @accounts
   end
 
@@ -45,7 +46,7 @@ class AccountsController < ApplicationController
   end
 
   def destroy
-    @account = current_user.account.find_by(id: params[:id])
+    @account = current_user.accounts.find_by(id: params[:id])
     @account.destroy
     render json: { message: "Account successfully deleted!" }
   end
