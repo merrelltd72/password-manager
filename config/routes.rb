@@ -27,5 +27,6 @@ Rails.application.routes.draw do
   get '/accounts/:id' => 'accounts#show'
   patch '/accounts/:id' => 'accounts#update'
   delete '/accounts/:id' => 'accounts#destroy'
+  post '/account_upload' => 'accounts#upload_accounts'
 
 end

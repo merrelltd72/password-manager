@@ -1,5 +1,6 @@
 class AccountsController < ApplicationController
   before_action :authenticate_user
+  skip_before_action :verify_authenticity_token, only: [:upload_accounts]
 
   # Show all accounts
   def index
@@ -50,5 +51,38 @@ class AccountsController < ApplicationController
     @account.destroy
     render json: { message: "Account successfully deleted!" }
   end
+
+  def upload_accounts
+    uploaded_file = params[:file]
+
+    # Checking the content type of the file
+    if uploaded_file.content_type == 'text/csv'
+      process_csv(uploaded_file)
+    elsif %w[application/vnd.openxmlformats-officedocument.spreadsheetml.sheet application/vnd.ms-excel].include?(uploaded_file.content_type)
+      process_excel(uploaded_file)
+    else
+      render json: {error: 'Invalid file type'}, status: :unprocessable_entity
+    end
+
+    
+  end
+
+  private
+  
+    def process_csv(file)
+      CSV.foreach(file.path, headers: true) do |row| 
+        pp row
+        Account.create(user_id: current_user.id, category_id: row[0], web_app_name: row[1], url: row[2], username: row[3], password: row[4], notes: row[5])
+      end
+      render json: {message: 'Accounts uploaded successfully'}, status: :ok
+    end
+
+    def process_excel(file)
+      spreadsheet = Roo::Spreadsheet.open(file.path)
+      spreadsheet.each_with_index do |row, index|
+        next if index.zero? # Skip header row
+        Account.create(user_id: current_user.id, category_id: row[0], web_app_name: row[1], url: row[2], username: row[3], password: row[4], notes: row[5])
+      end
+    end
 
 end
