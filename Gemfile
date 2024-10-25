@@ -42,6 +42,9 @@ gem "jwt"
 
 gem "rack-cors"
 
+# Roo implements read access for all common spreadsheet types. https://github.com/roo-rb/roo
+gem "roo", "~> 2.10.0"
+
 # OmniAuth is a library that standardizes multi-provider authentication for web applications. https://github.com/omniauth/omniauth
 gem 'omniauth'
 
