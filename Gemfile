@@ -3,7 +3,7 @@ source "https://rubygems.org"
 ruby "3.3.1"
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
-gem "rails", "7.2.2"
+gem "rails", "8.0.0"
 
 # Shim to load environment variables from .env into ENV in development. https://github.com/bkeepers/dotenv
 gem 'dotenv', groups: [:development, :test, :production]
@@ -12,7 +12,7 @@ gem 'dotenv', groups: [:development, :test, :production]
 gem "sprockets-rails"
 
 # Use postgresql as the database for Active Record
-gem "pg", "~> 1.1"
+gem "pg", "~> 1.5.9"
 
 # Use the Puma web server [https://github.com/puma/puma]
 gem "puma", ">= 5.0"
@@ -41,6 +41,8 @@ gem "bcrypt", "~> 3.1.7"
 gem "jwt"
 
 gem "rack-cors"
+
+gem "sidekiq"
 
 # Roo implements read access for all common spreadsheet types. https://github.com/roo-rb/roo
 gem "roo", "~> 2.10.0"
