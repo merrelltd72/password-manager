@@ -45,7 +45,10 @@ gem "rack-cors"
 gem "sidekiq"
 
 # Roo implements read access for all common spreadsheet types. https://github.com/roo-rb/roo
-gem "roo", "~> 2.10.0"
+gem "roo", "~> 2.10", ">= 2.10.1"
+
+# The CSV library provides a complete interface to CSV files and data. https://rubygems.org/gems/csv
+gem "csv", "~> 3.3"
 
 # OmniAuth is a library that standardizes multi-provider authentication for web applications. https://github.com/omniauth/omniauth
 gem 'omniauth'

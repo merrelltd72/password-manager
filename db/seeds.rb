@@ -8,8 +8,8 @@
 #     MovieGenre.find_or_create_by!(name: genre_name)
 #   end
 
-User.create!(username: "tyron", email: "tyron@example.com", password: "password")
-User.create!(username: "merrell", email: "merrell@example.com", password: "password")
+# User.create!(username: "tyron", email: "tyron@example.com", password: "password")
+# User.create!(username: "merrell", email: "merrell@example.com", password: "password")
 
 Category.create!(category_type: "Personal")
 Category.create!(category_type: "Work")

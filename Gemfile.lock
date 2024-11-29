@@ -94,6 +94,7 @@ GEM
     concurrent-ruby (1.3.3)
     connection_pool (2.4.1)
     crass (1.0.6)
+    csv (3.3.0)
     date (3.4.0)
     debug (1.9.2)
       irb (~> 1.10)
@@ -310,6 +311,7 @@ DEPENDENCIES
   bcrypt (~> 3.1.7)
   bootsnap
   capybara
+  csv (~> 3.3)
   debug
   dotenv
   importmap-rails
@@ -321,7 +323,7 @@ DEPENDENCIES
   puma (>= 5.0)
   rack-cors
   rails (= 8.0.0)
-  roo (~> 2.10.0)
+  roo (~> 2.10, >= 2.10.1)
   selenium-webdriver
   sidekiq
   sprockets-rails

@@ -10,9 +10,9 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_09_12_190313) do
+ActiveRecord::Schema[8.0].define(version: 2024_09_12_190313) do
   # These are extensions that must be enabled in order to support this database
-  enable_extension "plpgsql"
+  enable_extension "pg_catalog.plpgsql"
 
   create_table "accounts", force: :cascade do |t|
     t.string "user_id"
@@ -43,5 +43,4 @@ ActiveRecord::Schema[7.1].define(version: 2024_09_12_190313) do
     t.string "token"
     t.index ["provider", "uid"], name: "index_users_on_provider_and_uid", unique: true
   end
-
 end
