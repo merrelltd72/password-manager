@@ -4,9 +4,18 @@ class AccountsController < ApplicationController
 
   # Show all accounts
   def index
-    @accounts = current_user.accounts.paginate(page: params[:page], per_page: 6)
-    @accounts.sort_by { |account| [account.web_app_name] }
-    render json: @accounts
+    # @accounts = current_user.accounts.paginate(page: params[:page], per_page: 6)
+   @accounts = Account.paginate(page: params[:page], per_page: 9)
+   render json: {
+    data: @accounts,
+    meta: {
+      current_page: @accounts.current_page,
+      next_page: @accounts.next_page,
+      prev_page: @accounts.previous_page,
+      total_pages: @accounts.total_pages,
+      total_count: @accounts.total_entries
+    }
+   }
   end
 
   # Show an account
