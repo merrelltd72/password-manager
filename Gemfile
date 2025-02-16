@@ -44,11 +44,14 @@ gem "rack-cors"
 
 gem "sidekiq"
 
+# A Scope & Engine based, clean, powerful, customizable and sophisticated paginator for modern web app frameworks and ORMs https://github.com/kaminari/kaminari
+gem 'kaminari'
+
 # Roo implements read access for all common spreadsheet types. https://github.com/roo-rb/roo
 gem "roo", "~> 2.10", ">= 2.10.1"
 
 # The CSV library provides a complete interface to CSV files and data. https://rubygems.org/gems/csv
-gem "csv", "~> 3.3"
+gem "csv", "~> 3.3.2"
 
 # OmniAuth is a library that standardizes multi-provider authentication for web applications. https://github.com/omniauth/omniauth
 gem 'omniauth'
@@ -57,7 +60,7 @@ gem 'omniauth'
 gem 'omniauth-google-oauth2'
 
 # https://github.com/mislav/will_paginate?tab=readme-ov-file
-gem 'will_paginate', '~> 4.0'
+ gem 'will_paginate', '~> 4.0'
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem "tzinfo-data", platforms: %i[ windows jruby ]
