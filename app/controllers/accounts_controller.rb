@@ -5,17 +5,9 @@ class AccountsController < ApplicationController
   # Show all accounts
   def index
     # @accounts = current_user.accounts.paginate(page: params[:page], per_page: 6)
-   @accounts = Account.paginate(page: params[:page], per_page: 9)
-   render json: {
-    data: @accounts,
-    meta: {
-      current_page: @accounts.current_page,
-      next_page: @accounts.next_page,
-      prev_page: @accounts.previous_page,
-      total_pages: @accounts.total_pages,
-      total_count: @accounts.total_entries
-    }
-   }
+   accounts = current_user.accounts
+   paginate_accounts(accounts)
+   
   end
 
   # Show an account
@@ -92,6 +84,20 @@ class AccountsController < ApplicationController
         next if index.zero? # Skip header row
         Account.create(user_id: current_user.id, category_id: row[0], web_app_name: row[1], url: row[2], username: row[3], password: row[4], notes: row[5])
       end
+    end
+
+    def paginate_accounts(accounts)
+      @accounts = accounts.paginate(page: params[:page], per_page: 9)
+      render json: {
+        data: @accounts,
+        meta: {
+          current_page: @accounts.current_page,
+          next_page: @accounts.next_page,
+          prev_page: @accounts.previous_page,
+          total_pages: @accounts.total_pages,
+          total_count: @accounts.total_entries
+        }
+      }
     end
 
 end
