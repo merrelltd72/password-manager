@@ -248,6 +248,8 @@ GEM
     rake (13.2.1)
     rdoc (6.7.0)
       psych (>= 4.0.0)
+    redis (5.4.0)
+      redis-client (>= 0.22.0)
     redis-client (0.22.2)
       connection_pool
     regexp_parser (2.9.2)
@@ -336,6 +338,7 @@ DEPENDENCIES
   puma (>= 5.0)
   rack-cors
   rails (= 8.0.0)
+  redis (>= 4.0.1)
   roo (~> 2.10, >= 2.10.1)
   selenium-webdriver
   sidekiq
