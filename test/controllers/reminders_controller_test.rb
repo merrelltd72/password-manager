@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class AccountsControllerTest < ActionDispatch::IntegrationTest
+class RemindersControllerTest < ActionDispatch::IntegrationTest
   # test "the truth" do
   #   assert true
   # end

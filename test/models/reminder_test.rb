@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class AccountsControllerTest < ActionDispatch::IntegrationTest
+class ReminderTest < ActiveSupport::TestCase
   # test "the truth" do
   #   assert true
   # end

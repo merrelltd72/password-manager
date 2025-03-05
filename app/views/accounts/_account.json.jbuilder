@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 
 json.category_id account.category_id
 json.web_app_name account.web_app_name
