@@ -1,6 +1,7 @@
-class UsersController < ApplicationController
+# frozen_string_literal: true
 
-  #Create new user
+class UsersController < ApplicationController
+  # Create new user
   def create
     user = User.new(
       username: params[:username],
@@ -14,5 +15,4 @@ class UsersController < ApplicationController
       render json: { errors: user.errors.full_messages }, status: :bad_request
     end
   end
-
 end
