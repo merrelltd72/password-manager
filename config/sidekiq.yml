@@ -1,11 +1,11 @@
 :logfile: ./log/sidekiq.log
-:concurrency: 2
+:concurrency: 5
 staging:
-  :concurrency: 2
+  :concurrency: 10
 develop:
-  :concurrency: 2
+  :concurrency: 10
 :queues:
-  - critical
+  - [critical, 2]
   - default
   - mailers
   - low
