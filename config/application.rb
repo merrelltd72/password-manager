@@ -33,5 +33,8 @@ module PasswordManager
 
     # Configuring Sidekiq as the ActiveJob adapter
     config.active_job.queue_adapter = :sidekiq
+
+    # Confugiguring a logger for the application
+    config.log = Logger.new($stdout)
   end
 end
