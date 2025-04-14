@@ -46,7 +46,8 @@ gem 'rack-cors'
 
 gem 'sidekiq'
 
-# A Scope & Engine based, clean, powerful, customizable and sophisticated paginator for modern web app frameworks and ORMs https://github.com/kaminari/kaminari
+# A Scope & Engine based, clean, powerful, customizable and sophisticated paginator for modern web app frameworks and
+# ORMs https://github.com/kaminari/kaminari
 gem 'kaminari'
 
 # Roo implements read access for all common spreadsheet types. https://github.com/roo-rb/roo
@@ -78,6 +79,8 @@ group :development, :test do
   gem 'debug', platforms: %i[mri windows]
 
   gem 'rubocop'
+
+  gem 'rspec-rails'
 
   gem 'rubocop-rspec'
 

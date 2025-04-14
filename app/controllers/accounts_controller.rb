@@ -33,24 +33,20 @@ class AccountsController < ApplicationController
 
   def update
     @account = Account.find_by(id: params[:id])
-    @account.update(
-      category_id: params[:category_id] || @account.category_id,
-      web_app_name: params[:web_app_name] || @account.web_app_name,
-      url: params[:url] || @account.url,
-      username: params[:username] || @account.username,
-      password: params[:password] || @account.password,
-      notes: params[:notes] || @account.notes
-    )
+    update_account(@account)
     if @account.valid?
+      log.info "Account #{account.web_app_name} was updated."
       render json: { message: 'Account succressfully updated!' }, status: 200
     else
-      render json: { erros: @account.errors.full_messages }, status: 422
+      log.error "Update of account #{account.web_app_name} unsuccessful."
+      render json: { errors: @account.errors.full_messages }, status: 422
     end
   end
 
   def destroy
     @account = current_user.accounts.find_by(id: params[:id])
     @account.destroy
+    log.info 'Account successfully deleted.'
     render json: { message: 'Account successfully deleted!' }
   end
 
@@ -89,7 +85,7 @@ class AccountsController < ApplicationController
     end
   end
 
-  def paginate_accounts(accounts)
+  def paginate_accounts(accounts) # rubocop:disable Metrics/MethodLength
     @accounts = accounts.paginate(page: params[:page], per_page: 9)
     render json: {
       data: @accounts,
@@ -101,5 +97,17 @@ class AccountsController < ApplicationController
         total_count: @accounts.total_entries
       }
     }
+  end
+
+  def update_account(account)
+    account.assign_attributes(
+      category_id: params[:category_id] || @account.category_id,
+      web_app_name: params[:web_app_name] || @account.web_app_name,
+      url: params[:url] || @account.url,
+      username: params[:username] || @account.username,
+      password: params[:password] || @account.password,
+      notes: params[:notes] || @account.notes
+    )
+    account.save
   end
 end
