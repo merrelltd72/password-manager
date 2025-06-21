@@ -26,7 +26,7 @@ Welcome to the Password Management Application! This tool will help you securely
 ### Prerequisites
 
 - Ruby 3.3.1+
-- Rails 7.1.3+
+- Rails 8.0.0+
 - PostgreSQL 14.13+
 
 ### Quick Start
