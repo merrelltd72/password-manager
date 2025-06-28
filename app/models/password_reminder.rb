@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class PasswordReminder < ApplicationRecord
   belongs_to :account
   belongs_to :user

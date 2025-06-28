@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# Accounts functionality
 class AccountsController < ApplicationController
   before_action :authenticate_user
   skip_before_action :verify_authenticity_token, only: [:upload_accounts]
