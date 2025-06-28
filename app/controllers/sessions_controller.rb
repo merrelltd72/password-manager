@@ -53,18 +53,24 @@ class SessionsController < ApplicationController
 
   def isloggedin
     if current_user
-      token = cookies.signed[:jwt]
-      decoded_token = JWT.decode(
-        token,
-        Rails.application.credentials.fetch(:secret_key_base),
-        true,
-        { algorithm: 'HS256' }
-      )
+      decoded_token = generate_token
       User.find_by(id: decoded_token[0]['user_id'])
       user = User.find_by(id: decoded_token[0]['user_id'])
       render json: { logged_in: true, user: user }, status: 200
     else
       render json: { logged_in: false }, status: :unauthorized
     end
+  end
+
+  private
+
+  def generate_token
+    token = cookies.signed[:jwt]
+    JWT.decode(
+      token,
+      Rails.application.credentials.fetch(:secret_key_base),
+      true,
+      { algorithm: 'HS256' }
+    )
   end
 end
