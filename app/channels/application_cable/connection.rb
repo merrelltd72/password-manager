@@ -12,8 +12,8 @@ module ApplicationCable
     protected
 
     def find_verified_user
-      verified_user = User.find_by(session_token: cookies.signed[:session_token])
-      return verified_user if verified_user
+      verified_user = AuthenticationHelper.current_user
+      return verified_user if verified_user&.authenticated?
 
       reject_unauthorized_connection
     end

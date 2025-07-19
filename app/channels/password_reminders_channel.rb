@@ -3,7 +3,7 @@
 # This class implements Websockets supporting the Password Reminder funtionality
 class PasswordRemindersChannel < ApplicationCable::Channel
   def subscribed
-    stream_from 'password_reminders'
+    stream_from `reminders_#{current_user.id}`
   end
 
   def unsubscribed
@@ -11,8 +11,17 @@ class PasswordRemindersChannel < ApplicationCable::Channel
   end
 
   def create(data)
-    @password_reminder = PasswordReminder.create!(account_id: data['account_id'], user_id: current_user.id,
-                                                  reminder_date: data['reminder_date'])
-    ActionCable.server.broadcast('password_reminders', reminder: reminder)
+    PasswordReminderService.update_reminder(
+      account_id: data['account_id'],
+      reminder_date: data['reminder_date']
+    )
+
+    broadcast_to(`reminders_#{current_user.id}`,
+                 status: 'success',
+                 message: 'Reminder updated')
+  rescue StandardError => e
+    broadcast_to(`reminders_#{current_user.id}`,
+                 status: 'error',
+                 message: e.message)
   end
 end

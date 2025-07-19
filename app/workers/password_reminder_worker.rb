@@ -3,11 +3,22 @@
 # This is the password reminder worker class
 class PasswordReminderWorker
   include Sidekiq::Worker
+  sidekiq_options queue: 'reminders'
 
   def perform
-    PasswordReminder.due_reminders.each do |reminder|
-      # Send notification to frontend using ActionCable or a third-party service
-      ActionCable.server.broadcast('password_reminders', reminder: reminder)
+    due_reminders = PasswordReminder.where(
+      'due_date <- ? AND notified = FALSE',
+      Time.current
+    )
+
+    due_reminders.each do |reminder|
+      RemindersChannel.broadcast_to(
+        `reminders_#{reminder.account.user.id}`,
+        reminder_id: reminder.id,
+        message: `Time to update the password for #{reminder.account.username}`
+      )
+
+      reminder.update!(notified: true)
     end
   end
 end
