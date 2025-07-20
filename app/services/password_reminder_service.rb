@@ -21,7 +21,7 @@ class PasswordReminderService
   end
 
   def check_due_reminders
-    reminders = PasswordReminder.where.notified: false
+    reminders = Reminder.where(notified: false)
 
     reminders.each do |reminder|
       notify_user(reminder.account.user) if reminder.due_for_notifications?
@@ -31,6 +31,6 @@ class PasswordReminderService
   private
 
   def notify_user
-    #need logic for this implementation
+    # need logic for this implementation
   end
 end

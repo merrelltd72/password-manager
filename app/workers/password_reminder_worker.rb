@@ -6,10 +6,7 @@ class PasswordReminderWorker
   sidekiq_options queue: 'reminders'
 
   def perform
-    due_reminders = PasswordReminder.where(
-      'due_date <- ? AND notified = FALSE',
-      Time.current
-    )
+    due_reminders = Reminder.where(notified: false)
 
     due_reminders.each do |reminder|
       RemindersChannel.broadcast_to(
