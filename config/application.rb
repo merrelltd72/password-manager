@@ -36,5 +36,8 @@ module PasswordManager
 
     # Confugiguring a logger for the application
     config.log = Logger.new($stdout)
+
+    # Configuring allowed request origins for ActiveCable
+    config.action_cable.allowed_request_origins = ['http://localhost:5173']
   end
 end

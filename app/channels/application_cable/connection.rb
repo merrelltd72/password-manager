@@ -9,13 +9,26 @@ module ApplicationCable
       self.current_user = find_verified_user
     end
 
-    protected
+    private
 
     def find_verified_user
-      verified_user = AuthenticationHelper.current_user
-      return verified_user if verified_user&.authenticated?
+      user = find_user_from_session
+      user || reject_unauthorized_connection
+    end
 
-      reject_unauthorized_connection
+    def find_user_from_session
+      decoded_token = generate_token
+      User.find_by(id: decoded_token[0]['user_id'])
+    end
+
+    def generate_token
+      token = cookies.signed[:jwt]
+      JWT.decode(
+        token,
+        Rails.application.credentials.fetch(:secret_key_base),
+        true,
+        { algorithm: 'HS256' }
+      )
     end
   end
 end
