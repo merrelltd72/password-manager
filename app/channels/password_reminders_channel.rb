@@ -4,7 +4,7 @@ module ApplicationCable
   # This class implements Websockets supporting the Password Reminder funtionality
   class PasswordRemindersChannel < ApplicationCable::Channel
     def subscribed
-      stream_from `reminders_#{current_user.id}`
+      stream_from "reminders_#{current_user.id}"
     end
 
     def unsubscribed

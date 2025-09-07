@@ -4,13 +4,14 @@ class Reminder < ApplicationRecord
   validates :due_date, presence: true
   validates :frequency, inclusion: {
     in: %w[daily weekly monthly quarterly yearly],
-    message: `#{value} is not a frequency.`
+    message: "#{value} is not a frequency."
   }
 
   enum frequency: {
     daily: 'daily',
     weekly: 'weekly',
-    monthly: 'quarterly',
+    monthly: 'monthly',
+    quarterly: 'quarterly',
     yearly: 'yearly'
   }
 

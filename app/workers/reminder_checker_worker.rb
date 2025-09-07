@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # This is the password reminder worker class
-class PasswordReminderWorker
+class ReminderCheckerWorker
   include Sidekiq::Worker
   sidekiq_options queue: 'reminders'
 
@@ -10,7 +10,7 @@ class PasswordReminderWorker
 
     due_reminders.each do |reminder|
       RemindersChannel.broadcast_to(
-        `reminders_#{reminder.account.user.id}`,
+        "reminders_#{reminder.account.user.id}",
         reminder_id: reminder.id,
         message: `Time to update the password for #{reminder.account.username}`
       )
