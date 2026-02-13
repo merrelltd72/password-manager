@@ -2,7 +2,6 @@
 
 # Configuration for ActionController
 class ApplicationController < ActionController::Base
-  # protect_from_forgery with: :exception, unless: -> { request.format.json? }
   protect_from_forgery with: :exception, unless: -> { request.format.json? }
 
   def current_user

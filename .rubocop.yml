@@ -1,0 +1,14 @@
+inherit_from: .rubocop_todo.yml
+
+plugins:
+  - rubocop-rails
+  - rubocop-capybara
+  - rubocop-rspec
+  - rubocop-performance
+  - rubocop-rspec_rails
+
+AllCops:
+  TargetRubyVersion: 3.4.4
+  Exclude:
+    - "app/jobs/*.rb"
+    - "app/models/*.rb"

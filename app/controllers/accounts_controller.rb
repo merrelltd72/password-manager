@@ -37,10 +37,10 @@ class AccountsController < ApplicationController
     update_account(@account)
     if @account.valid?
       logger.info "Account #{@account.web_app_name} was updated."
-      render json: { message: 'Account succressfully updated!' }, status: 200
+      render json: { message: 'Account succressfully updated!' }, status: :ok
     else
       logger.error "Update of account #{@account.web_app_name} unsuccessful."
-      render json: { errors: @account.errors.full_messages }, status: 422
+      render json: { errors: @account.errors.full_messages }, status: :unprocessable_content
     end
   end
 
@@ -69,7 +69,6 @@ class AccountsController < ApplicationController
 
   def process_csv(file)
     CSV.foreach(file.path, headers: true) do |row|
-      pp row
       Account.create(user_id: current_user.id, category_id: row[0], web_app_name: row[1], url: row[2],
                      username: row[3], password: row[4], notes: row[5])
     end
@@ -86,7 +85,7 @@ class AccountsController < ApplicationController
     end
   end
 
-  def paginate_accounts(accounts) # rubocop:disable Metrics/MethodLength
+  def paginate_accounts(accounts)
     @accounts = accounts.paginate(page: params[:page], per_page: 9)
     render json: {
       data: @accounts,
