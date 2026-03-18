@@ -20,4 +20,8 @@ class PasswordRemindersController < ApplicationController
   def password_reminder_params
     params.require(:password_reminder).permit(:account_id, :user_id, :reminder_date)
   end
+
+  def new
+    @password_reminder = PasswordReminder.new
+  end
 end
