@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+# This class handles user sessions, including login, logout, and checking if a user is logged in.
+# It supports both email/password authentication and OAuth authentication. 
+# JWT tokens are used for session management, stored in HTTP-only cookies for security.
 class SessionsController < ApplicationController
   # user login method
   def create
@@ -16,7 +19,7 @@ class SessionsController < ApplicationController
     else
       render json: { error: 'Invalid credentials' }, status: :unauthorized
     end
-  rescue StandardError => e
+  rescue StandardError
     render json: { error: 'Authentication failed' }, status: :internal_server_error
   end
 
