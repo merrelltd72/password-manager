@@ -2,26 +2,26 @@
 
 # Methods for the Password Reminders controller
 class PasswordRemindersController < ApplicationController
+  before_action :authenticate_user
   def index
-    @password_reminders = PasswordReminder.all
+    @password_reminders = current_user.password_reminders
   end
 
   def create
     @password_reminder = PasswordReminder.new(password_reminder_params)
+
     if @password_reminder.save
+      PasswordReminders::Delivery.schedule(@password_reminder)
+
       render json: @password_reminder, status: :created
     else
-      render json: { error: 'Failed to create password reminder' }, status: :unprocessable_entity
+      render json: { error: @password_reminder.errors.full_messages }, status: :unprocessable_entity
     end
   end
 
   private
 
   def password_reminder_params
-    params.require(:password_reminder).permit(:account_id, :user_id, :reminder_date)
-  end
-
-  def new
-    @password_reminder = PasswordReminder.new
+    params.require(:password_reminder).permit(:account_id, :reminder_date).merge(user_id: current_user.id)
   end
 end

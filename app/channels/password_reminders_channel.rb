@@ -3,20 +3,28 @@
 # This class implements Websockets supporting the Password Reminder funtionality
 class PasswordRemindersChannel < ApplicationCable::Channel
   def subscribed
-    stream_from 'password_reminders'
+    stream_for current_user
   end
 
   def create(data)
-    raise ArgumentError, 'Invalid data' unless data['account_id'].present? && data['reminder_date'].present?
+    account_id = data['account_id']
+    reminder_date = data['reminder_date']
 
-    @password_reminder = PasswordReminder.create!(account_id: data['account_id'], user_id: current_user.id,
-                                                  reminder_date: data['reminder_date'])
-    ActionCable.server.broadcast('password_reminders', reminder: @password_reminder)
+    raise ArgumentError, 'Invalid data' if account_id.blank? || reminder_date.blank?
+
+    account = current_user.accounts.find(account_id)
+
+    reminder = PasswordReminder.create!(account: account, user: current_user, reminder_date: reminder_date)
+
+    PasswordReminders::Delivery.schedule(reminder)
+    PasswordReminders::Delivery.broadcast(reminder)
+  rescue ActiveRecord::RecordNotFound
+    transmit({ error: 'Account not found or does not belong to the current user' })
   rescue ArgumentError => e
-    transmit(error: "Validation error: #{e.message}")
+    transmit({ error: "Validation error: #{e.message}" })
   rescue ActiveRecord::RecordInvalid => e
-    transmit(error: "Failed to create reminder: #{e.message}")
+    transmit({ error: "Failed to create reminder: #{e.record.errors.full_messages.join(', ')}" })
   rescue StandardError => e
-    transmit(error: "An unexpected error occurred: #{e.message}")
+    transmit({ error: "An unexpected error occurred: #{e.message}" })
   end
 end

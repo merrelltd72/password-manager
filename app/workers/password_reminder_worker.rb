@@ -5,9 +5,9 @@ class PasswordReminderWorker
   include Sidekiq::Worker
 
   def perform
-    PasswordReminder.due_reminders.each do |reminder|
-      # Send notification to frontend using ActionCable or a third-party service
-      ActionCable.server.broadcast('password_reminders', reminder: reminder)
+    PasswordReminder.due_reminders.find_each do |reminder|
+      PasswordReminders::Delivery.broadcast(reminder)
+      reminder.mark_notified!
     end
   end
 end
