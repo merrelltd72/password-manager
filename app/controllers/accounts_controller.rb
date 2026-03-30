@@ -3,86 +3,130 @@
 # Accounts functionality
 class AccountsController < ApplicationController
   before_action :authenticate_user
-  skip_before_action :verify_authenticity_token, only: [:upload_accounts]
 
   # Show all accounts
   def index
-    # @accounts = current_user.accounts.paginate(page: params[:page], per_page: 6)
     accounts = current_user.accounts
     paginate_accounts(accounts)
   end
 
   # Show an account
   def show
-    @account = Account.find_by(id: params[:id])
-    render json: @account
+    account = current_user.accounts.find_by(id: params[:id])
+    return render json: { error: 'Account not found' }, status: :not_found unless account
+
+    render json: account
   end
 
   # Create an account
   def create
-    @account = Account.create(
-      user_id: current_user.id,
-      category_id: params[:category_id],
-      web_app_name: params[:web_app_name],
-      url: params[:url],
-      username: params[:username],
-      password: params[:password],
-      notes: params[:notes]
-    )
-    render :show
+    account = current_user.accounts.new(account_params)
+
+    if account.save
+      render json: account, status: :created
+    else
+      render json: { errors: account.errors.full_messages }, status: :unprocessable_entity
+    end
   end
 
   def update
-    @account = Account.find_by(id: params[:id])
-    update_account(@account)
-    if @account.valid?
-      logger.info "Account #{@account.web_app_name} was updated."
-      render json: { message: 'Account succressfully updated!' }, status: 200
+    account = current_user.accounts.find_by(id: params[:id])
+    return render json: { error: 'Account not found' }, status: :not_found unless account
+
+    if account.update(account_params)
+      logger.info "Account #{account.web_app_name} was updated."
+      render json: { message: 'Account successfully updated!' }, status: :ok
     else
-      logger.error "Update of account #{@account.web_app_name} unsuccessful."
-      render json: { errors: @account.errors.full_messages }, status: 422
+      logger.error "Update of account #{account.web_app_name} unsuccessful."
+      render json: { errors: account.errors.full_messages }, status: :unprocessable_entity
     end
   end
 
   def destroy
-    @account = current_user.accounts.find_by(id: params[:id])
-    @account.destroy
+    account = current_user.accounts.find_by(id: params[:id])
+    return render json: { error: 'Account not found' }, status: :not_found unless account
+
+    account.destroy
     logger.info 'Account successfully deleted.'
     render json: { message: 'Account successfully deleted!' }
   end
 
   def upload_accounts
     uploaded_file = params[:file]
+    return render json: { error: 'No file uploaded' }, status: :bad_request unless uploaded_file
 
     # Checking the content type of the file
-    if uploaded_file.content_type == 'text/csv'
-      process_csv(uploaded_file)
-    elsif %w[application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
-             application/vnd.ms-excel].include?(uploaded_file.content_type)
-      process_excel(uploaded_file)
+    case uploaded_file.content_type
+    when 'text/csv'
+      import_accounts_from_csv(uploaded_file)
+    when 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel'
+      import_accounts_from_excel(uploaded_file)
     else
-      render json: { error: 'Invalid file type' }, status: :unprocessable_entity
+      render json: { error: 'Unsupported file type' }, status: :unsupported_media_type
     end
   end
 
   private
 
-  def process_csv(file)
-    CSV.foreach(file.path, headers: true) do |row|
-      pp row
-      Account.create(user_id: current_user.id, category_id: row[0], web_app_name: row[1], url: row[2],
-                     username: row[3], password: row[4], notes: row[5])
-    end
-    render json: { message: 'Accounts uploaded successfully' }, status: :ok
+  def import_accounts_from_csv(file)
+    result = import_rows(CSV.foreach(file.path, headers: true).to_a)
+
+    render json: result[:body], status: result[:status]
   end
 
-  def process_excel(file)
+  def import_accounts_from_excel(file)
     spreadsheet = Roo::Spreadsheet.open(file.path)
-    spreadsheet.each_with_index do |row, index|
-      next if index.zero? # Skip header row
+    rows = []
 
-      Account.create(user_id: current_user.id, category_id: row[0], web_app_name: row[1], url: row[2],
-                     username: row[3], password: row[4], notes: row[5])
+    spreadsheet.each_with_index do |row, index|
+      next if index.zero?
+
+      rows << row
+    end
+
+    result = import_rows(rows)
+
+    render json: result[:body], status: result[:status]
+  end
+
+  def import_rows(rows)
+    created_count = 0
+    errors = []
+
+    rows.each_with_index do |row, index|
+      account = current_user.accounts.new(
+        category_id: row[0],
+        web_app_name: row[1],
+        url: row[2],
+        username: row[3],
+        password: row[4],
+        notes: row[5]
+      )
+
+      if account.save
+        created_count += 1
+      else
+        errors << {
+          row: index + 2,
+          errors: account.errors.full_messages
+        }
+      end
+    end
+
+    if errors.empty?
+      {
+        status: :ok,
+        body: { message: 'Accounts uploaded successfully', create_count: created_count }
+      }
+    else
+      {
+        status: :unprocessable_entity,
+        body: {
+          message: 'Some accounts could not be uploaded',
+          created_count: created_count,
+          errors: errors
+        }
+      }
     end
   end
 
@@ -100,16 +144,7 @@ class AccountsController < ApplicationController
     }
   end
 
-  def update_account(account)
-    @account = account
-    @account.assign_attributes(
-      category_id: params[:category_id] || @account.category_id,
-      web_app_name: params[:web_app_name] || @account.web_app_name,
-      url: params[:url] || @account.url,
-      username: params[:username] || @account.username,
-      password: params[:password] || @account.password,
-      notes: params[:notes] || @account.notes
-    )
-    @account.save
+  def account_params
+    params.permit(:category_id, :web_app_name, :url, :username, :password, :notes)
   end
 end
