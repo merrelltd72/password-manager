@@ -12,7 +12,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 20_240_912_190_313) do
+ActiveRecord::Schema[8.0].define(version: 20_250_614_173_604) do # rubocop:disable Metrics/BlockLength
   # These are extensions that must be enabled in order to support this database
   enable_extension 'pg_catalog.plpgsql'
 
@@ -34,6 +34,26 @@ ActiveRecord::Schema[8.0].define(version: 20_240_912_190_313) do
     t.datetime 'updated_at', null: false
   end
 
+  create_table 'password_reminders', force: :cascade do |t|
+    t.bigint 'account_id', null: false
+    t.bigint 'user_id', null: false
+    t.date 'reminder_date'
+    t.boolean 'notification_sent', default: false
+    t.datetime 'created_at', null: false
+    t.datetime 'updated_at', null: false
+    t.index ['account_id'], name: 'index_password_reminders_on_account_id'
+    t.index ['user_id'], name: 'index_password_reminders_on_user_id'
+  end
+
+  create_table 'tasks', force: :cascade do |t|
+    t.string 'title'
+    t.text 'description'
+    t.bigint 'user_id', null: false
+    t.datetime 'created_at', null: false
+    t.datetime 'updated_at', null: false
+    t.index ['user_id'], name: 'index_tasks_on_user_id'
+  end
+
   create_table 'users', force: :cascade do |t|
     t.string 'username'
     t.string 'email'
@@ -45,4 +65,8 @@ ActiveRecord::Schema[8.0].define(version: 20_240_912_190_313) do
     t.string 'token'
     t.index %w[provider uid], name: 'index_users_on_provider_and_uid', unique: true
   end
+
+  add_foreign_key 'password_reminders', 'accounts'
+  add_foreign_key 'password_reminders', 'users'
+  add_foreign_key 'tasks', 'users'
 end

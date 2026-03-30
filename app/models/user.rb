@@ -4,6 +4,9 @@ class User < ApplicationRecord
   # User table one (user) to many (accounts) relationship with Accounts table.
   has_many :accounts
 
+  # User table one (user) to many (password reminders) relationship with Password Reminders table.
+  has_many :password_reminders, dependent: :destroy
+
   # For username and password Authentication
   has_secure_password
 

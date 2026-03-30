@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# Accounts functionality
 class AccountsController < ApplicationController
   before_action :authenticate_user
   skip_before_action :verify_authenticity_token, only: [:upload_accounts]
@@ -35,10 +36,10 @@ class AccountsController < ApplicationController
     @account = Account.find_by(id: params[:id])
     update_account(@account)
     if @account.valid?
-      log.info "Account #{account.web_app_name} was updated."
+      logger.info "Account #{@account.web_app_name} was updated."
       render json: { message: 'Account succressfully updated!' }, status: 200
     else
-      log.error "Update of account #{account.web_app_name} unsuccessful."
+      logger.error "Update of account #{@account.web_app_name} unsuccessful."
       render json: { errors: @account.errors.full_messages }, status: 422
     end
   end
@@ -46,7 +47,7 @@ class AccountsController < ApplicationController
   def destroy
     @account = current_user.accounts.find_by(id: params[:id])
     @account.destroy
-    log.info 'Account successfully deleted.'
+    logger.info 'Account successfully deleted.'
     render json: { message: 'Account successfully deleted!' }
   end
 
@@ -100,7 +101,8 @@ class AccountsController < ApplicationController
   end
 
   def update_account(account)
-    account.assign_attributes(
+    @account = account
+    @account.assign_attributes(
       category_id: params[:category_id] || @account.category_id,
       web_app_name: params[:web_app_name] || @account.web_app_name,
       url: params[:url] || @account.url,
@@ -108,6 +110,6 @@ class AccountsController < ApplicationController
       password: params[:password] || @account.password,
       notes: params[:notes] || @account.notes
     )
-    account.save
+    @account.save
   end
 end

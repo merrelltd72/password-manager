@@ -2,10 +2,10 @@
 
 source 'https://rubygems.org'
 
-ruby '3.3.1'
+ruby '3.4.4'
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
-gem 'rails', '8.0.0'
+gem 'rails', '>=8.1.2'
 
 # Shim to load environment variables from .env into ENV in development. https://github.com/bkeepers/dotenv
 gem 'dotenv', groups: %i[development test production]
@@ -14,7 +14,7 @@ gem 'dotenv', groups: %i[development test production]
 gem 'sprockets-rails'
 
 # Use postgresql as the database for Active Record
-gem 'pg', '~> 1.5.9'
+gem 'pg', '~> 1.6.3'
 
 # Use the Puma web server [https://github.com/puma/puma]
 gem 'puma', '>= 5.0'
@@ -77,16 +77,12 @@ gem 'bootsnap', require: false
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem 'debug', platforms: %i[mri windows]
-
-  gem 'rubocop'
-
   gem 'rspec-rails'
-
-  gem 'rubocop-rspec'
-
-  gem 'rubocop-rails'
-
+  gem 'rubocop'
   gem 'rubocop-capybara'
+  gem 'rubocop-rails'
+  gem 'rubocop-rspec'
+  gem 'rubocop-rspec_rails'
 end
 
 group :development do

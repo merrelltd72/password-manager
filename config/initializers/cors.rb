@@ -6,7 +6,7 @@ Rails.application.config.middleware.insert_before 0, Rack::Cors do
     resource '*',
              headers: :any,
              credentials: true,
-             methods: %i[get post patch put delete options head],
+             methods: %i[get post patch put delete options head ws],
              expose: ['X-CSRF-Token']
   end
 end

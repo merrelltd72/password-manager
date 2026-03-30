@@ -32,4 +32,14 @@ Rails.application.routes.draw do
   patch '/accounts/:id' => 'accounts#update'
   delete '/accounts/:id' => 'accounts#destroy'
   post '/account_upload' => 'accounts#upload_accounts'
+
+  # Password Reminder route
+  post '/reminders' => 'password_reminders#create'
+
+  # Action Cable route for WebSocket connections
+  mount ActionCable.server => '/cable'
+
+  resources :reminders, only: %i[index show], controller: 'password_reminders'
+
+  root to: 'reminders#index'
 end
