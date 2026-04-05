@@ -24,6 +24,7 @@ Rails.application.routes.draw do
 
   # Google login route
   get '/auth/google_oauth2/callback' => 'sessions#oauth_callback'
+  get '/auth/failure' => 'sessions#oauth_failure'
 
   # Account routes
   get '/accounts' => 'accounts#index'

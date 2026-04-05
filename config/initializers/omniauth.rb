@@ -7,3 +7,5 @@ Rails.application.config.middleware.use OmniAuth::Builder do
   }
 end
 OmniAuth.config.allowed_request_methods = %i[get]
+OmniAuth.config.on_failure = proc { |env| OmniAuth::FailureEndpoint.new(env).redirect_to_failure }
+OmniAuth.config.failure_raise_out_environments = []
