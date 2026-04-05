@@ -3,6 +3,7 @@
 # Accounts functionality
 class AccountsController < ApplicationController
   before_action :authenticate_user
+  before_action :set_account, only: %i[show update destroy]
 
   # Show all accounts
   def index
@@ -12,10 +13,7 @@ class AccountsController < ApplicationController
 
   # Show an account
   def show
-    account = current_user.accounts.find_by(id: params[:id])
-    return render json: { error: 'Account not found' }, status: :not_found unless account
-
-    render json: account
+    render json: @account
   end
 
   # Create an account
@@ -30,23 +28,17 @@ class AccountsController < ApplicationController
   end
 
   def update
-    account = current_user.accounts.find_by(id: params[:id])
-    return render json: { error: 'Account not found' }, status: :not_found unless account
-
-    if account.update(account_params)
-      logger.info "Account #{account.web_app_name} was updated."
-      render json: { message: 'Account successfully updated!' }, status: :ok
+    if @account.update(account_params)
+      logger.info "Account #{@account.web_app_name} was updated."
+      render json: @account, status: :ok
     else
-      logger.error "Update of account #{account.web_app_name} unsuccessful."
-      render json: { errors: account.errors.full_messages }, status: :unprocessable_entity
+      logger.error "Update of account #{@account.web_app_name} unsuccessful."
+      render json: { errors: @account.errors.full_messages }, status: :unprocessable_entity
     end
   end
 
   def destroy
-    account = current_user.accounts.find_by(id: params[:id])
-    return render json: { error: 'Account not found' }, status: :not_found unless account
-
-    account.destroy
+    @account.destroy
     logger.info 'Account successfully deleted.'
     render json: { message: 'Account successfully deleted!' }
   end
@@ -94,38 +86,35 @@ class AccountsController < ApplicationController
     errors = []
 
     rows.each_with_index do |row, index|
-      account = current_user.accounts.new(
-        category_id: row[0],
-        web_app_name: row[1],
-        url: row[2],
-        username: row[3],
-        password: row[4],
-        notes: row[5]
-      )
-
+      account = build_account_from_row(row)
       if account.save
         created_count += 1
       else
-        errors << {
-          row: index + 2,
-          errors: account.errors.full_messages
-        }
+        errors << { row: index + 2, errors: account.errors.full_messages }
       end
     end
 
+    import_result(created_count, errors)
+  end
+
+  def build_account_from_row(row)
+    current_user.accounts.new(
+      category_id: row[0],
+      web_app_name: row[1],
+      url: row[2],
+      username: row[3],
+      password: row[4],
+      notes: row[5]
+    )
+  end
+
+  def import_result(created_count, errors)
     if errors.empty?
-      {
-        status: :ok,
-        body: { message: 'Accounts uploaded successfully', create_count: created_count }
-      }
+      { status: :ok, body: { message: 'Accounts uploaded successfully', create_count: created_count } }
     else
       {
         status: :unprocessable_entity,
-        body: {
-          message: 'Some accounts could not be uploaded',
-          created_count: created_count,
-          errors: errors
-        }
+        body: { message: 'Some accounts could not be uploaded', created_count: created_count, errors: errors }
       }
     end
   end
@@ -142,6 +131,11 @@ class AccountsController < ApplicationController
         total_count: @accounts.total_entries
       }
     }
+  end
+
+  def set_account
+    @account = current_user.accounts.find_by(id: params[:id])
+    render json: { error: 'Account not found' }, status: :not_found unless @account
   end
 
   def account_params
