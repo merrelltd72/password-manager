@@ -28,6 +28,11 @@ class SessionsController < ApplicationController
     render json: { error: 'Authentication failed' }, status: :internal_server_error
   end
 
+  def oauth_failure
+    error = params[:message].presence || 'Authentication failed'
+    render json: { error: error }, status: :unauthorized
+  end
+
   def destroy
     cookies.delete(:jwt)
     render json: { message: 'Logged out successfully' }, status: :ok
