@@ -1,16 +1,12 @@
 # frozen_string_literal: true
 
 # This class handles user sessions, including login, logout, and checking if a user is logged in.
-# It supports both email/password authentication and OAuth authentication. 
+# It supports both email/password authentication and OAuth authentication.
 # JWT tokens are used for session management, stored in HTTP-only cookies for security.
 class SessionsController < ApplicationController
   # user login method
   def create
-    user = if request.env['omniauth.auth']
-             authenticate_oath(request.env['omniauth.auth'])
-           else
-             authenticate_email(params[:email], params[:password])
-           end
+    user = authenticate_email(params[:email], params[:password])
 
     if user
       jwt = issue_jwt(user.id)
@@ -19,6 +15,15 @@ class SessionsController < ApplicationController
     else
       render json: { error: 'Invalid credentials' }, status: :unauthorized
     end
+  rescue StandardError
+    render json: { error: 'Authentication failed' }, status: :internal_server_error
+  end
+
+  def oauth_callback
+    user = authenticate_oauth(request.env['omniauth.auth'])
+    jwt = issue_jwt(user.id)
+    cookies.signed[:jwt] = { value: jwt, httponly: true }
+    render json: { email: user.email, user_id: user.id }, status: :created
   rescue StandardError
     render json: { error: 'Authentication failed' }, status: :internal_server_error
   end
@@ -38,7 +43,7 @@ class SessionsController < ApplicationController
 
   private
 
-  def authenticate_oath(auth)
+  def authenticate_oauth(auth)
     User.find_or_create_by(
       username: auth.info.name,
       email: auth.info.email,

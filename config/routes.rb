@@ -23,7 +23,7 @@ Rails.application.routes.draw do
   delete '/sessions' => 'sessions#destroy'
 
   # Google login route
-  get '/auth/google_oauth2/callback' => 'sessions#create'
+  get '/auth/google_oauth2/callback' => 'sessions#oauth_callback'
 
   # Account routes
   get '/accounts' => 'accounts#index'
