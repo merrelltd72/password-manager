@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_09_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_09_120002) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -41,15 +41,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_09_120000) do
     t.bigint "user_id", null: false
     t.index ["account_id"], name: "index_password_reminders_on_account_id"
     t.index ["user_id"], name: "index_password_reminders_on_user_id"
-  end
-
-  create_table "reminders", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.date "due_date"
-    t.string "frequency"
-    t.datetime "last_notified_at"
-    t.boolean "notified"
-    t.datetime "updated_at", null: false
   end
 
   create_table "tasks", force: :cascade do |t|
