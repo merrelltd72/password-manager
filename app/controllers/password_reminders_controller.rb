@@ -14,6 +14,13 @@ class PasswordRemindersController < ApplicationController
       PasswordReminders::Delivery.schedule(@password_reminder)
 
       render json: @password_reminder, status: :created
+      ActivityEvent.create!(
+        user: current_user,
+        event_type: 'reminder_created',
+        subject_type: 'PasswordReminder',
+        subject_id: @password_reminder.id,
+        metadata: { account_id: @password_reminder.account_id, reminder_date: @password_reminder.reminder_date }
+      )
     else
       render json: { error: @password_reminder.errors.full_messages }, status: :unprocessable_entity
     end

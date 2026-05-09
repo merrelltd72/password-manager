@@ -6,7 +6,11 @@
 class SessionsController < ApplicationController
   # user login method
   def create
-    user = authenticate_email(params[:email], params[:password])
+    user = if request.env['omniauth.auth'].present?
+             authenticate_oauth(request.env['omniauth.auth'])
+           else
+             authenticate_email(params[:email], params[:password])
+           end
 
     if user
       jwt = issue_jwt(user.id)
@@ -65,14 +69,14 @@ class SessionsController < ApplicationController
 
   def issue_jwt(user_id)
     JWT.encode({ user_id: user_id, exp: 24.hours.from_now.to_i },
-               Rails.application.credentials.fetch(:secret_key_base), 'HS256')
+               jwt_secret_key, 'HS256')
   end
 
   def decode_jwt
     token = cookies.signed[:jwt]
     JWT.decode(
       token,
-      Rails.application.credentials.fetch(:secret_key_base),
+      jwt_secret_key,
       true,
       { algorithm: 'HS256' }
     )
