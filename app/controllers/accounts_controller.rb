@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Accounts functionality
+# Controller for managing user accounts, including CRUD operations and bulk upload functionality.
 class AccountsController < ApplicationController
   before_action :authenticate_user
   before_action :set_account, only: %i[show update destroy]
@@ -22,6 +22,13 @@ class AccountsController < ApplicationController
 
     if account.save
       render json: account, status: :created
+      ActivityEvent.create!(
+        user: current_user,
+        event_type: 'account_created',
+        subject_type: 'Account',
+        subject_id: account.id,
+        metadata: { web_app_name: account.web_app_name }
+      )
     else
       render json: { errors: account.errors.full_messages }, status: :unprocessable_entity
     end
@@ -31,6 +38,13 @@ class AccountsController < ApplicationController
     if @account.update(account_params)
       logger.info "Account #{@account.web_app_name} was updated."
       render json: @account, status: :ok
+      ActivityEvent.create!(
+        user: current_user,
+        event_type: 'account_updated',
+        subject_type: 'Account',
+        subject_id: @account.id,
+        metadata: { web_app_name: @account.web_app_name }
+      )
     else
       logger.error "Update of account #{@account.web_app_name} unsuccessful."
       render json: { errors: @account.errors.full_messages }, status: :unprocessable_entity
@@ -41,6 +55,13 @@ class AccountsController < ApplicationController
     @account.destroy
     logger.info 'Account successfully deleted.'
     render json: { message: 'Account successfully deleted!' }
+    ActivityEvent.create!(
+      user: current_user,
+      event_type: 'account_deleted',
+      subject_type: 'Account',
+      subject_id: @account.id,
+      metadata: { web_app_name: @account.web_app_name }
+    )
   end
 
   def upload_accounts

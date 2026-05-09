@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_09_120002) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_06_014149) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -21,9 +21,24 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_09_120002) do
     t.string "password"
     t.datetime "updated_at", null: false
     t.string "url"
-    t.string "user_id"
+    t.bigint "user_id", null: false
     t.string "username"
     t.string "web_app_name"
+    t.index ["user_id"], name: "index_accounts_on_user_id"
+  end
+
+  create_table "activity_events", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "event_type", null: false
+    t.jsonb "metadata", default: {}, null: false
+    t.bigint "subject_id"
+    t.string "subject_type"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["subject_type", "subject_id"], name: "index_activity_events_on_subject_type_and_subject_id"
+    t.index ["user_id", "created_at"], name: "index_activity_events_on_user_id_and_created_at"
+    t.index ["user_id", "event_type", "created_at"], name: "index_activity_events_on_user_id_and_event_type_and_created_at"
+    t.index ["user_id"], name: "index_activity_events_on_user_id"
   end
 
   create_table "categories", force: :cascade do |t|
@@ -52,6 +67,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_09_120002) do
     t.index ["user_id"], name: "index_tasks_on_user_id"
   end
 
+  create_table "user_preferences", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "date_format", default: "MMM d, yyyy", null: false
+    t.jsonb "generator_defaults", default: {}, null: false
+    t.jsonb "reminder_defaults", default: {}, null: false
+    t.string "timezone", default: "UTC", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["user_id"], name: "index_user_preferences_on_user_id", unique: true
+  end
+
   create_table "users", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "email"
@@ -64,7 +90,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_09_120002) do
     t.index ["provider", "uid"], name: "index_users_on_provider_and_uid", unique: true
   end
 
+  add_foreign_key "accounts", "users"
+  add_foreign_key "activity_events", "users"
   add_foreign_key "password_reminders", "accounts"
   add_foreign_key "password_reminders", "users"
   add_foreign_key "tasks", "users"
+  add_foreign_key "user_preferences", "users"
 end

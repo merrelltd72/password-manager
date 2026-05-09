@@ -3,6 +3,9 @@
 require 'sidekiq/web'
 
 Rails.application.routes.draw do
+  get "profiles/show"
+  get "profiles/update"
+  get "dashboard/show"
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
@@ -33,6 +36,14 @@ Rails.application.routes.draw do
   patch '/accounts/:id' => 'accounts#update'
   delete '/accounts/:id' => 'accounts#destroy'
   post '/account_upload' => 'accounts#upload_accounts'
+
+  # Dashboard route
+  get '/dashboard' => 'dashboard#show'
+
+  # Profile routes
+  get '/profile' => 'profiles#show'
+  patch '/profile' => 'profiles#update'
+  patch '/profile/password' => 'profiles#update_password'
 
   # Password Reminder route
   post '/reminders' => 'password_reminders#create'
