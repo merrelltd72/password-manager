@@ -17,7 +17,7 @@ module ApplicationCable
 
       decoded = JWT.decode(
         token,
-        Rails.application.credentials.fetch(:secret_key_base),
+        jwt_secret_key,
         true,
         { algorithm: 'HS256' }
       )
@@ -29,6 +29,12 @@ module ApplicationCable
       reject_unauthorized_connection
     rescue JWT::DecodeError, JWT::ExpiredSignature, KeyError
       reject_unauthorized_connection
+    end
+
+    def jwt_secret_key
+      Rails.application.credentials.secret_key_base.presence ||
+        ENV['SECRET_KEY_BASE'].presence ||
+        Rails.application.secret_key_base
     end
   end
 end

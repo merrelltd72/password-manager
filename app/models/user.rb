@@ -28,9 +28,9 @@ class User < ApplicationRecord
   private
 
   def create_default_user_preference
-    create_default_user_preference!(
+    create_user_preference!(
       timezone: 'UTC',
-      date_formate: 'MMM d, yyyy',
+      date_format: 'MMM d, yyyy',
       generator_defaults: {
         length: 16,
         symbols: true,

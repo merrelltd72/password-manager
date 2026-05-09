@@ -1,5 +1,5 @@
 module Dashboard
-  class BuidPayload
+  class BuildPayload
     DUE_SOON_DAYS = 7
     ACTIVITY_LIMIT = 15
 
@@ -75,7 +75,7 @@ module Dashboard
       today = Date.current
       soon_cutoff = today + @due_soon_days.days
 
-      due_today = reminders.select { |reminder| reminder.due_date == today && !reminder.notification_sent }
+      due_today = reminders.select { |reminder| reminder.reminder_date == today && !reminder.notification_sent }
       due_soon = reminders.select do |reminder|
         !reminder.notification_sent && reminder.reminder_date.present? && reminder.reminder_date > today && reminder.reminder_date <= soon_cutoff
       end
