@@ -1,3 +1,6 @@
+# frozen_string_literal: true
+
+# Model representing an activity event associated with a user, capturing specific actions or changes within the application for auditing and user feedback purposes.
 class ActivityEvent < ApplicationRecord
   belongs_to :user
 

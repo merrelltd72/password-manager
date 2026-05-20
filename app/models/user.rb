@@ -1,9 +1,12 @@
 # frozen_string_literal: true
 
+# User model representing an individual user of the application, including authentication and associations with accounts, reminders, and activity events.
 class User < ApplicationRecord
   has_many :accounts
   has_many :password_reminders, dependent: :destroy
   has_many :activity_events, dependent: :destroy
+  has_many :import_runs, dependent: :destroy
+  has_many :export_runs, dependent: :destroy
   has_one :user_preference, dependent: :destroy
 
   # For username and password Authentication
@@ -31,16 +34,24 @@ class User < ApplicationRecord
     create_user_preference!(
       timezone: 'UTC',
       date_format: 'MMM d, yyyy',
-      generator_defaults: {
-        length: 16,
-        symbols: true,
-        numbers: true,
-        uppercase: true
-      },
-      reminder_defaults: {
-        lead_days: 7,
-        repeat: 'none'
-      }
+      generator_defaults: generator_defaults,
+      reminder_defaults: reminder_defaults
     )
+  end
+
+  def generator_defaults
+    {
+      length: 16,
+      symbols: true,
+      numbers: true,
+      uppercase: true
+    }
+  end
+
+  def reminder_defaults
+    {
+      lead_days: 7,
+      repeat: 'none'
+    }
   end
 end

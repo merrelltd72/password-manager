@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Dashboard
   class BuildPayload
     DUE_SOON_DAYS = 7
