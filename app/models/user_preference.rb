@@ -1,3 +1,6 @@
+# frozen_string_literal: true
+
+# Model representing user preferences, including timezone, date format, and default settings for password generation and reminders, allowing users to customize their experience within the application.
 class UserPreference < ApplicationRecord
   belongs_to :user
 
