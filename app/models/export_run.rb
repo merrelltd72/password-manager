@@ -14,7 +14,7 @@ class ExportRun < ApplicationRecord
 
   def mark_processing!
     update!(
-      status: :processing,
+      status: :in_progress,
       started_at: Time.current,
       error_message: nil
     )
