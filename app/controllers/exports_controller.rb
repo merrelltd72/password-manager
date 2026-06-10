@@ -48,7 +48,8 @@ class ExportsController < ApplicationController
 
   def download_url_for(run)
     return nil unless run.completed?
-    return nil if run.mark_failed!
+    return nil if run.file_path.blank?
+    return nil if run.expires_at.present? && run.expires_at.past?
 
     run.file_path
   end
