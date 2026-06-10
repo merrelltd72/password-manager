@@ -44,9 +44,15 @@ Rails.application.routes.draw do
   get '/profile' => 'profiles#show'
   patch '/profile' => 'profiles#update'
   patch '/profile/password' => 'profiles#update_password'
+  delete '/profile' => 'profiles#destroy'
 
   # Password Reminder route
   post '/reminders' => 'password_reminders#create'
+
+  # Account data import/export routes
+  post '/exports/accounts' => 'exports#create'
+  get '/exports/:id' => 'exports#show'
+  get '/imports' => 'imports#index'
 
   # Action Cable route for WebSocket connections
   mount ActionCable.server => '/cable'

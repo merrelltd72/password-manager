@@ -41,4 +41,33 @@ RSpec.describe 'Profile', type: :request do
 
     expect(response).to have_http_status(:ok)
   end
+
+  describe 'DELETE /profile' do
+    it 'deletes accont with confirm_text' do
+      delete '/profile', params: { confirm_text: 'DELETE' }, as: :json
+
+      expect(response).to have_http_status(:ok)
+      expect(User.find_by(id: user.id)).to be_nil
+    end
+
+    it 'deletes account with valid current_password' do
+      delete '/profile', params: { current_password: 'Password1!' }, as: :json
+
+      expect(response).to have_http_status(:ok)
+      expect(User.find_by(id: user.id)).to be_nil
+    end
+
+    it 'rejects delete without confirmation' do
+      delete '/profile', params: {}, as: :json
+
+      expect(response).to have_http_status(:unprocessable_entity)
+    end
+
+    it 'rejects unauthenticated delete' do
+      delete '/sessions'
+      delete '/profile', params: { confirm_text: 'DELETE' }, as: :json
+
+      expect(response).to have_http_status(:unauthorized)
+    end
+  end
 end

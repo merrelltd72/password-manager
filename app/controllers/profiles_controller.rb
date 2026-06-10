@@ -62,6 +62,20 @@ class ProfilesController < ApplicationController
     end
   end
 
+  def destroy
+    return render json: { errors: ['Confirmation required.'] }, status: :unprocessable_entity unless destroy_confirmed?
+
+    ActiveRecord::Base.transaction do
+      current_user.accounts.find_each(&:destroy!)
+      current_user.destroy!
+    end
+
+    cookies.delete(:jwt)
+    render json: { message: 'Account deletion successful' }, status: :ok
+  rescue ActiveRecord::RecordInvalid => e
+    render json: { errors: e.record.errors.full_messages }, status: :unprocessable_entity
+  end
+
   private
 
   def profile_update_params
@@ -93,5 +107,15 @@ class ProfilesController < ApplicationController
       jwt_secret_key,
       'HS256'
     )
+  end
+
+  def destroy_params
+    params.permit(:confirm_text, :current_password)
+  end
+
+  def destroy_confirmed?
+    text_ok = destroy_params[:confirm_text] == 'DELETE'
+    password_ok = destroy_params[:current_password].present? && current_user.authenticate(destroy_params[:current_password])
+    text_ok || password_ok
   end
 end
