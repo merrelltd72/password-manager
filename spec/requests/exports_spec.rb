@@ -80,19 +80,50 @@ RSpec.describe 'Exports', type: :request do
 
         expect(response).to have_http_status(:not_found)
       end
-    end
 
-    context 'when export run is expires_at is past' do
-      it 'returns nil' do
-        run = user.export_runs.create!(format: 'csv',
-                                       status: :completed,
-                                       file_path: '/tmp/export.csv',
-                                       expires_at: 1.day.ago)
+      it 'returns a download_url when all conditions are met' do
+        run = user.export_runs.create!(
+          format: 'csv',
+          status: :completed,
+          file_path: '/tmp/export.csv',
+          expires_at: 1.day.from_now
+        )
 
         get "/exports/#{run.id}"
 
+        expect(response).to have_http_status(:ok)
         body = JSON.parse(response.body)
-        expect(body['download_url']).to eq(nil)
+        expect(body['download_url']).to eq('/tmp/export.csv')
+      end
+
+      it 'returns nil download_url when export is expired' do
+        run = user.export_runs.create!(
+          format: 'csv',
+          status: :completed,
+          file_path: '/tmp/export.csv',
+          expires_at: 1.day.ago
+        )
+
+        get "/exports/#{run.id}"
+
+        expect(response).to have_http_status(:ok)
+        body = JSON.parse(response.body)
+        expect(body['download_url']).to be_nil
+      end
+
+      it 'returns nil download_url when completed export has no file_path' do
+        run = user.export_runs.create!(
+          format: 'csv',
+          status: :completed,
+          file_path: nil,
+          expires_at: 1.day.from_now
+        )
+
+        get "/exports/#{run.id}"
+
+        expect(response).to have_http_status(:ok)
+        body = JSON.parse(response.body)
+        expect(body['download_url']).to be_nil
       end
     end
 
