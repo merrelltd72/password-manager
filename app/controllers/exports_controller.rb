@@ -9,7 +9,8 @@ class ExportsController < ApplicationController
     format = export_params[:format].presence || 'csv'
     run = current_user.export_runs.create!(format: format)
 
-    # Future implementation: Exports::GenerateFileJob.perform_later(run.id)
+    Exports::GenerateFileJob.perform_later(run.id)
+
     render json: serialize_export(run), status: :accepted
   rescue ActiveRecord::RecordInvalid => e
     render json: { error: e.record.errors.full_messages }, status: :unprocessable_entity
@@ -51,6 +52,17 @@ class ExportsController < ApplicationController
     return nil if run.file_path.blank?
     return nil if run.expires_at.present? && run.expires_at.past?
 
-    run.file_path
+    "/exports/#{run.id}/download"
+  end
+
+  def download
+    run = current_user.export_runs.find(params[:id])
+    return head :not_found unless run.mark_completed?
+    return head :gone if run.expires_at.present? && run.expires_at.past?
+    return head :forbidden unless ActiveSupport::SecurityUtils.secure_compare(params[:token].to_s,
+                                                                              run.download_token.to_s)
+    return head :not_found if run.file_path.blank? || !File.exist?(run.file_path)
+
+    send_file run.file_path, disposition: 'attachment', filename: File.basename(run.file_path)
   end
 end
