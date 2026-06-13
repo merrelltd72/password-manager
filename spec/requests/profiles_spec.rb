@@ -60,14 +60,14 @@ RSpec.describe 'Profile', type: :request do
     it 'rejects delete without confirmation' do
       delete '/profile', params: {}, as: :json
 
-      expect(response).to have_http_status(:unprocessable_entity)
+      expect_json_error_response(:unprocessable_entity)
     end
 
     it 'rejects unauthenticated delete' do
       delete '/sessions'
       delete '/profile', params: { confirm_text: 'DELETE' }, as: :json
 
-      expect(response).to have_http_status(:unauthorized)
+      expect_json_error_response(:unauthorized)
     end
   end
 end

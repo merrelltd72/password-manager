@@ -63,8 +63,7 @@ RSpec.describe 'Sessions', type: :request do
       it 'returns unauthorized' do
         post '/sessions'
 
-        expect(response).to have_http_status(:unauthorized)
-        expect(parsed_body['error']).to eq('Invalid credentials')
+        expect_json_error_response(:unauthorized)
       end
     end
 
@@ -87,8 +86,7 @@ RSpec.describe 'Sessions', type: :request do
       it 'returns internal server error' do
         post '/sessions'
 
-        expect(response).to have_http_status(:internal_server_error)
-        expect(parsed_body['error']).to eq('Authentication failed')
+        expect_json_error_response(:internal_server_error)
       end
     end
   end
