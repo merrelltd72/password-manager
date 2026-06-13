@@ -57,7 +57,7 @@ RSpec.describe 'Imports', type: :request do
       it 'returns unauthorized' do
         get '/imports'
 
-        expect(response).to have_http_status(:unauthorized)
+        expect_json_error_response(:unauthorized)
       end
     end
   end

@@ -53,7 +53,7 @@ RSpec.describe 'Exports', type: :request do
     context 'when unauthenticated' do
       it 'returns unauthorized' do
         post '/exports/accounts', params: { format: 'csv' }, as: :json
-        expect(response).to have_http_status(:unauthorized)
+        expect_json_error_response(:unauthorized)
       end
     end
   end
@@ -78,7 +78,7 @@ RSpec.describe 'Exports', type: :request do
 
         get "/exports/#{run2.id}"
 
-        expect(response).to have_http_status(:not_found)
+        expect_json_error_response(:not_found)
       end
 
       it 'returns a download_url when all conditions are met' do
@@ -133,7 +133,7 @@ RSpec.describe 'Exports', type: :request do
 
         get "/exports/#{run.id}"
 
-        expect(response).to have_http_status(:unauthorized)
+        expect_json_error_response(:unauthorized)
       end
     end
   end

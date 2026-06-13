@@ -20,7 +20,7 @@ class ApplicationController < ActionController::Base
   def authenticate_user
     return if current_user
 
-    render json: {}, status: :unauthorized
+    render json: { error: 'Unauthorized' }, status: :unauthorized
   end
 
   private

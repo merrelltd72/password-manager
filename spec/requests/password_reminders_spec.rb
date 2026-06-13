@@ -73,7 +73,7 @@ RSpec.describe 'PasswordReminders', type: :request do
           post '/reminders', params: params
         end.not_to change(PasswordReminder, :count)
 
-        expect(response).to have_http_status(:unauthorized)
+        expect_json_error_response(:unauthorized)
         expect(PasswordReminderJob).not_to have_received(:perform_at)
       end
     end

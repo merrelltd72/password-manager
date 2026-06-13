@@ -21,6 +21,6 @@ RSpec.describe 'Dashboard', type: :request do
   it 'rejects unauthenticated request' do
     delete '/sessions'
     get '/dashboard'
-    expect(response).to have_http_status(:unauthorized)
+    expect_json_error_response(:unauthorized)
   end
 end
