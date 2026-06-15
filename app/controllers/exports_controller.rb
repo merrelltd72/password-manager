@@ -3,7 +3,7 @@
 # Controller handling user-initiated export operations for account data, allowing users to request exports in various formats and track their status for download.
 class ExportsController < ApplicationController
   before_action :authenticate_user
-  before_action :set_export_run, only: :show
+  before_action :set_export_run, only: %i[show download]
 
   def create
     format = export_params[:format].presence || 'csv'
@@ -18,6 +18,25 @@ class ExportsController < ApplicationController
 
   def show
     render json: serialize_export(@export_run), status: :ok
+  end
+
+  def download
+    return head :not_found unless @export_run.completed?
+    return head :gone if @export_run.expires_at.present? && @export_run.expires_at.past?
+    return head :not_found if @export_run.file_path.blank? || !File.exist?(@export_run.file_path)
+
+    if params[:token].present? && !ActiveSupport::SecurityUtils.secure_compare(
+      params[:token].to_s,
+      @export_run.download_token.to_s
+    )
+      return head :forbidden
+    end
+
+    send_file(
+      @export_run.file_path,
+      disposition: 'attachment',
+      filename: File.basename(@export_run.file_path)
+    )
   end
 
   private
@@ -52,17 +71,6 @@ class ExportsController < ApplicationController
     return nil if run.file_path.blank?
     return nil if run.expires_at.present? && run.expires_at.past?
 
-    "/exports/#{run.id}/download"
-  end
-
-  def download
-    run = current_user.export_runs.find(params[:id])
-    return head :not_found unless run.mark_completed?
-    return head :gone if run.expires_at.present? && run.expires_at.past?
-    return head :forbidden unless ActiveSupport::SecurityUtils.secure_compare(params[:token].to_s,
-                                                                              run.download_token.to_s)
-    return head :not_found if run.file_path.blank? || !File.exist?(run.file_path)
-
-    send_file run.file_path, disposition: 'attachment', filename: File.basename(run.file_path)
+    "/exports/#{run.id}/download?token=#{run.download_token}"
   end
 end

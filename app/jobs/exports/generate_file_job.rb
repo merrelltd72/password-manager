@@ -13,18 +13,21 @@ module Exports
       run.mark_processing!
 
       generated = Exports::FileBuilder.call(run: run)
-      # generated => { path:, record_count:, expires_at: }
 
+      run_mark_completed(run, generated)
+    rescue ActiveRecord::RecordNotFound
+      nil
+    rescue StandardError => e
+      run&.mark_failed!(e.message)
+      raise
+    end
+
+    def run_mark_completed(run, generated)
       run.mark_completed!(
         path: generated[:path],
         expires_at: generated[:expires_at],
         record_count: generated[:record_count]
       )
-    rescue ActiveRecord::RecordNotFound
-      run.delete
-    rescue StandardError => e
-      run&.mark_failed!(e.message)
-      raise
     end
   end
 end

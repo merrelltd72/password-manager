@@ -1,3 +1,8 @@
+# frozen_string_literal: true
+
+require 'csv'
+require 'fileutils'
+require 'json'
 module Exports
   class FileBuilder
     def self.call(run:)
@@ -11,13 +16,14 @@ module Exports
 
     def call
       rows = @user.accounts.order(:id).pluck(:id, :web_app_name, :url, :username, :notes)
-      expires_at = 7.days.from_now
-      path = build_file(rows)
-
-      { path: path, record_count: rows.size, expires_at: expires_at }
+      {
+        path: build_file(rows),
+        record_count: rows.size,
+        expires_at: 7.days.from_now
+      }
     end
 
-    private 
+    private
 
     def build_file(rows)
       case @run.format
@@ -25,7 +31,7 @@ module Exports
       when 'json' then write_json(rows)
       when 'xlsx' then write_xlsx(rows)
       else
-        raise ArgumentError. "Unsupported format: #{@run.format}"
+        raise ArgumentError, "Unsupported format: #{@run.format}"
       end
     end
 
@@ -43,7 +49,7 @@ module Exports
     end
 
     def write_json(rows)
-      dir = Rails.root.join("tmp", "exports", @user.id.to_s)
+      dir = Rails.root.join('tmp', 'exports', @user.id.to_s)
       FileUtils.mkdir_p(dir)
       path = dir.join("export_#{@run.id}.json")
 
@@ -57,7 +63,7 @@ module Exports
 
     def write_xlsx(rows)
       # Implement this functionality
-      raise NotImplementedError, "xlsx writer not implemented yet"
+      raise NotImplementedError, 'xlsx writer not implemented yet'
     end
   end
 end

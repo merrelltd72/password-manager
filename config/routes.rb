@@ -52,6 +52,7 @@ Rails.application.routes.draw do
   # Account data import/export routes
   post '/exports/accounts' => 'exports#create'
   get '/exports/:id' => 'exports#show'
+  get '/exports/:id/download' => 'exports#download'
   get '/imports' => 'imports#index'
 
   # Action Cable route for WebSocket connections
