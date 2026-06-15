@@ -93,7 +93,7 @@ RSpec.describe 'Exports', type: :request do
 
         expect(response).to have_http_status(:ok)
         body = JSON.parse(response.body)
-        expect(body['download_url']).to eq('/tmp/export.csv')
+        expect(body['download_url']).to eq("/exports/#{run.id}/download?token=#{run.download_token}")
       end
 
       it 'returns nil download_url when export is expired' do
@@ -134,6 +134,40 @@ RSpec.describe 'Exports', type: :request do
         get "/exports/#{run.id}"
 
         expect_json_error_response(:unauthorized)
+      end
+    end
+  end
+
+  describe 'GET /exports/:id/download' do
+    context 'when authenticated' do
+      before { login_as(user) }
+
+      it 'downloads completed export with valid token' do
+        run = user.export_runs.create!(
+          format: 'csv',
+          status: :completed,
+          file_path: Rails.root.join('tmp', 'exports', 'test.csv').to_s,
+          expires_at: 1.day.from_now
+        )
+        FileUtils.mkdir_p(File.dirname(run.file_path))
+        File.write(run.file_path, "id,web_app_name\n1,Github\n")
+
+        get "/exports/#{run.id}/download", params: { token: run.download_token }
+
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'rejects expired exports' do
+        run = user.export_runs.create!(
+          format: 'csv',
+          status: :completed,
+          file_path: '/tmp/export.csv',
+          expires_at: 1.day.ago
+        )
+
+        get "/exports/#{run.id}/download", params: { token: run.download_token }
+
+        expect(response).to have_http_status(:gone)
       end
     end
   end
