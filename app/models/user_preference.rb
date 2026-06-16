@@ -4,7 +4,7 @@
 class UserPreference < ApplicationRecord
   belongs_to :user
 
-  REPEAT_VALUES = %w[none daily weekly monthly yearly].freeze
+  REPEAT_VALUES = %w[none weekly monthly quarterly].freeze
 
   validates :timezone, presence: true
   validates :date_format, presence: true
