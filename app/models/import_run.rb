@@ -11,7 +11,7 @@ class ImportRun < ApplicationRecord
   scope :recent_first, -> { order(created_at: :desc) }
 
   def mark_processing!
-    update!(status: :processing, started_at: Time.current, errpr_message: nil)
+    update!(status: :processing, started_at: Time.current, error_message: nil)
   end
 
   def mark_completed!
