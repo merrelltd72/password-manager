@@ -68,74 +68,116 @@ class AccountsController < ApplicationController
     uploaded_file = params[:file]
     return render json: { error: 'No file uploaded' }, status: :bad_request unless uploaded_file
 
-    # Checking the content type of the file
-    case uploaded_file.content_type
-    when 'text/csv'
-      import_accounts_from_csv(uploaded_file)
-    when 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel'
-      import_accounts_from_excel(uploaded_file)
-    else
-      render json: { error: 'Unsupported file type' }, status: :unsupported_media_type
+    format = detect_format(uploaded_file.content_type)
+    return render json: { error: 'Unsupported file type' }, status: :unsupported_media_type unless format
+
+    import_run = current_user.import_runs.create!(
+      format: format,
+      source_filename: uploaded_file.original_filename
+    )
+
+    case format
+    when 'csv' then import_accounts_from_csv(uploaded_file, import_run)
+    when 'xlsx' then import_accounts_from_excel(uploaded_file, import_run)
+    when 'json' then import_accounts_from_json(uploaded_file, import_run)
     end
   end
 
   private
 
-  def import_accounts_from_csv(file)
-    result = import_rows(CSV.foreach(file.path, headers: true).to_a)
-
-    render json: result[:body], status: result[:status]
-  end
-
-  def import_accounts_from_excel(file)
-    spreadsheet = Roo::Spreadsheet.open(file.path)
-    rows = []
-
-    spreadsheet.each_with_index do |row, index|
-      next if index.zero?
-
-      rows << row
+  def detect_format(content_type)
+    case content_type
+    when 'text/csv'
+      'csv'
+    when 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+       'application/vnd.ms-excel'
+      'xlsx'
+    when 'application/json'
+      'json'
     end
+  end
 
-    result = import_rows(rows)
+  def import_accounts_from_csv(file, import_run)
+    result = import_rows(CSV.foreach(file.path, headers: true).to_a, import_run)
 
     render json: result[:body], status: result[:status]
   end
 
-  def import_rows(rows)
-    created_count = 0
-    errors = []
+  def import_accounts_from_excel(file, import_run)
+    spreadsheet = Roo::Spreadsheet.open(file.path)
+    rows = spreadsheet.each_with_index.filter_map { |row, i| row unless i.zero? }
+
+    result = import_rows(rows, import_run)
+
+    render json: result[:body], status: result[:status]
+  end
+
+  def import_accounts_from_json(file, import_run)
+    data = JSON.parse(File.read(file.path))
+    rows = data.is_a?(Array) ? data : data.fetch('accounts', [])
+    result = import_rows(rows, import_run)
+    render json: result[:body], status: result[:status]
+  rescue JSON::ParserError => e
+    import_run.mark_failed!(e.message)
+    render json: { error: 'Invalid JSON file' }, status: :unprocessable_entity
+  end
+
+  def import_rows(rows, import_run)
+    import_run.mark_processing!
+    import_run.update!(total_rows: rows.size)
+
+    succeeded = 0
+    failed_rows = []
 
     rows.each_with_index do |row, index|
       account = build_account_from_row(row)
       if account.save
-        created_count += 1
+        succeeded += 1
       else
-        errors << { row: index + 2, errors: account.errors.full_messages }
+        failed_rows << { row: index + 2, errors: account.errors.full_messages }
       end
     end
 
-    import_result(created_count, errors)
+    import_run.update!(
+      processed_rows: rows.size,
+      succeeded_rows: succeeded,
+      failed_rows: failed_rows.size
+    )
+    import_run.mark_completed!
+
+    ActivityEvent.create!(
+      user: current_user,
+      event_type: 'import_completed',
+      subject_type: 'ImportRun',
+      subject_id: import_run.id,
+      metadata: { succeeded_rows: succeeded, failed_rows: failed_rows.size }
+    )
+
+    import_result(succeeded, failed_rows, import_run.id)
+  rescue StandardError => e
+    import_run.mark_failed!(e.message)
+    { status: :internal_server_error, body: { error: 'Import failed unexpectedly', import_run_id: import_run.id } }
   end
 
   def build_account_from_row(row)
-    current_user.accounts.new(
-      category_id: row[0],
-      web_app_name: row[1],
-      url: row[2],
-      username: row[3],
-      password: row[4],
-      notes: row[5]
-    )
+    attrs = if row.is_a?(Hash)
+              row.slice('category_id', 'web_app_name', 'url', 'username', 'password', 'notes')
+            else
+              row_params(row)
+            end
+    current_user.accounts.new(attrs)
   end
 
-  def import_result(created_count, errors)
+  def import_result(created_count, errors, import_run_id)
     if errors.empty?
-      { status: :ok, body: { message: 'Accounts uploaded successfully', create_count: created_count } }
+      { status: :ok,
+        body: { message: 'Accounts uploaded successfully', created_count: created_count,
+                import_run_id: import_run_id } }
     else
       {
         status: :unprocessable_entity,
-        body: { message: 'Some accounts could not be uploaded', created_count: created_count, errors: errors }
+        body: { message: 'Some accounts could not be uploaded', created_count: created_count, errors: errors,
+                import_run_id: import_run_id }
       }
     end
   end
@@ -161,5 +203,16 @@ class AccountsController < ApplicationController
 
   def account_params
     params.permit(:category_id, :web_app_name, :url, :username, :password, :notes)
+  end
+
+  def row_params(row)
+    {
+      category_id: row[0],
+      web_app_name: row[1],
+      url: row[2],
+      username: row[3],
+      password: row[4],
+      notes: row[5]
+    }
   end
 end

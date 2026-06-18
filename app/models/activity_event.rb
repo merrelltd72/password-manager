@@ -10,6 +10,8 @@ class ActivityEvent < ApplicationRecord
     account_deleted
     reminder_created
     reminder_completed
+    export_created
+    import_completed
   ].freeze
 
   validates :event_type, inclusion: { in: EVENT_TYPES }
