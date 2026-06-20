@@ -29,8 +29,8 @@ class ProfilesController < ApplicationController
         active_sessions_supported: false
       },
       data_controls: {
-        last_import_at: nil,
-        last_export_at: nil
+        last_import_at: current_user.import_runs.where(status: :completed).maximum(:completed_at)&.iso8601,
+        last_export_at: current_user.export_runs.where(status: :completed).maximum(:completed_at)&.iso8601
       }
     }, status: :ok
   end
