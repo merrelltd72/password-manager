@@ -68,7 +68,8 @@ module Dashboard
       reused.map do |password, group|
         {
           password_fingerprint: Digest::SHA256.hexdigest(password),
-          account_ids: group.map(&:id)
+          account_ids: group.map(&:id),
+          web_app_names: group.map(&:web_app_name)
         }
       end
     end
