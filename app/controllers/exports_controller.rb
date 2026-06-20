@@ -11,6 +11,8 @@ class ExportsController < ApplicationController
 
     Exports::GenerateFileJob.perform_later(run.id)
 
+    activity_event(run)
+
     render json: serialize_export(run), status: :accepted
   rescue ActiveRecord::RecordInvalid => e
     render json: { error: e.record.errors.full_messages }, status: :unprocessable_entity
@@ -40,6 +42,16 @@ class ExportsController < ApplicationController
   end
 
   private
+
+  def activity_event(run)
+    ActivityEvent.create!(
+      user: current_user,
+      event_type: 'export_created',
+      subject_type: 'ExportRun',
+      subject_id: run.id,
+      metadata: { format: run.format }
+    )
+  end
 
   def export_params
     params.permit(:format)
