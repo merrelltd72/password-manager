@@ -71,6 +71,9 @@ gem 'tzinfo-data', platforms: %i[windows jruby]
 # Reduces boot times through caching; required in config/boot.rb
 gem 'bootsnap', require: false
 
+# Caxlsx is the community maintained fork of axlsx. Axlsx is an Office Open XML Spreadsheet generator for the Ruby programming language. https://github.com/caxlsx/caxlsx
+gem 'caxlsx', '~> 3.2'
+
 # Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
 # gem "image_processing", "~> 1.2"
 

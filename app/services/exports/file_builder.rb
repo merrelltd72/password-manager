@@ -62,8 +62,17 @@ module Exports
     end
 
     def write_xlsx(rows)
-      # Implement this functionality
-      raise NotImplementedError, 'xlsx writer not implemented yet'
+      dir = Rails.root.join('tmp', 'exports', @user.id.to_s)
+      FileUtils.mkdir_p(dir)
+      path = dir.join("export_#{@run.id}.xlsx")
+
+      package = Axlsx::Package.new
+      sheet = package.workbook.add_worksheet(name: 'Accounts')
+      sheet.add_row %w[id web_app_name url username notes]
+      rows.each { |row| sheet.add_row row }
+      package.serialize(path.to_s)
+
+      path.to_s
     end
   end
 end
