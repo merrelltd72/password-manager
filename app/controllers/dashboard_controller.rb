@@ -6,7 +6,11 @@ class DashboardController < ApplicationController
   before_action :authenticate_user
 
   def show
-    payload = Dashboard::BuildPayload.new(user: current_user).call
+    payload = Dashboard::BuildPayload.new(
+      user: current_user,
+      cursor: params[:cursor],
+      limit: params[:limit]
+    ).call
     render json: payload, status: :ok
   end
 end
