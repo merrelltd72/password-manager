@@ -60,7 +60,10 @@ module Dashboard
 
     def fetch_activity_page
       scope = @user.activity_events.order(id: :desc)
-      scope = scope.where('id < ?', decode_cursor(@cursor)) if @cursor.present?
+      if @cursor.present?
+        cursor_id = decode_cursor(@cursor)
+        scope = scope.where('id < ?', cursor_id) if cursor_id
+      end
 
       rows = scope.limit(@limit + 1).to_a
       has_more = rows.size > @limit

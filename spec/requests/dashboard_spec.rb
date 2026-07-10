@@ -23,4 +23,27 @@ RSpec.describe 'Dashboard', type: :request do
     get '/dashboard'
     expect_json_error_response(:unauthorized)
   end
+
+  it 'returns activity with next_cursor when events exceed limit' do
+    16.times { ActivityEvent.create!(user: user, event_type: 'account_created') }
+
+    get '/dashboard'
+
+    body = JSON.parse(response.body)
+    expect(body['activity']['next_cursor']).to be_a(String).and be_present
+    expect(body['activity']['events'].size).to eq(15)
+  end
+
+  it 'paginates activity with cursor param' do
+    20.times { ActivityEvent.create!(user: user, event_type: 'account_created') }
+
+    get '/dashboard', params: { limit: 10 }
+    first_ids = JSON.parse(response.body).dig('activity', 'events').map { |e| e['id'] }
+    cursor    = JSON.parse(response.body).dig('activity', 'next_cursor')
+
+    get '/dashboard', params: { limit: 10, cursor: cursor }
+    second_ids = JSON.parse(response.body).dig('activity', 'events').map { |e| e['id'] }
+
+    expect(first_ids & second_ids).to be_empty
+  end
 end

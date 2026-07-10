@@ -28,4 +28,20 @@ RSpec.describe PasswordReminderWorker, type: :worker do
     expect(due_reminder.reload.notification_sent).to be(true)
     expect(future_reminder.reload.notification_sent).to be(false)
   end
+
+  it 'emits a reminder_completed ActivityEvent' do
+    due_reminder = PasswordReminder.create!(account: account, user: user, reminder_date: Date.current + 1.day)
+    due_reminder.update_column(:reminder_date, Date.current)
+
+    allow(PasswordReminders::Delivery).to receive(:broadcast)
+
+    expect do
+      described_class.new.perform
+    end.to change { ActivityEvent.where(event_type: 'reminder_completed').count }.by(1)
+
+    event = ActivityEvent.find_by(event_type: 'reminder_completed')
+    expect(event.subject_type).to eq('PasswordReminder')
+    expect(event.subject_id).to eq(due_reminder.id)
+    expect(event.metadata['account_id']).to eq(account.id)
+  end
 end
