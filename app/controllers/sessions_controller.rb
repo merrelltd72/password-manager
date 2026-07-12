@@ -38,6 +38,8 @@ class SessionsController < ApplicationController
   end
 
   def destroy
+    token = cookies.signed[:jwt]
+    revoke_usersession_record(token) if token
     cookies.delete(:jwt)
     render json: { message: 'Logged out successfully' }, status: :ok
   end
@@ -68,8 +70,25 @@ class SessionsController < ApplicationController
   end
 
   def issue_jwt(user_id)
-    JWT.encode({ user_id: user_id, exp: 24.hours.from_now.to_i },
-               jwt_secret_key, 'HS256')
+    jti = SecureRandom.uuid
+    exp = 30.minutes.from_now
+
+    token = JWT.encode({ user_id: user_id, jti: jti, exp: exp.to_i },
+                       jwt_secret_key, 'HS256')
+
+    create_user_session(user_id, jti, exp)
+
+    token
+  end
+
+  def create_user_session(user_id, jti, exp)
+    UserSession.create!(
+      user_id: user_id,
+      jti: jti,
+      expires_at: exp,
+      ip: request.remote_ip,
+      user_agent: request.user_agent
+    )
   end
 
   def decode_jwt
@@ -80,5 +99,12 @@ class SessionsController < ApplicationController
       true,
       { algorithm: 'HS256' }
     )
+  end
+
+  def revoke_usersession_record(token)
+    payload = generate_jwt_token(token).first
+    UserSession.find_by(jti: payload['jti'])&.revoke!
+  rescue JWT::ExpiredSignature, JWT::DecodeError
+    nil
   end
 end

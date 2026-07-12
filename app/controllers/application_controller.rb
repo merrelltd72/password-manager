@@ -10,9 +10,8 @@ class ApplicationController < ActionController::Base
     return unless token
 
     begin
-      decoded_token = generate_jwt_token(token)
-      User.find_by(id: decoded_token[0]['user_id'])
-    rescue JWT::ExpiredSignature
+      find_user(token)
+    rescue JWT::ExpiredSignature, JWT::DecodeError
       nil
     end
   end
@@ -38,5 +37,16 @@ class ApplicationController < ActionController::Base
     Rails.application.credentials.secret_key_base.presence ||
       ENV['SECRET_KEY_BASE'].presence ||
       Rails.application.secret_key_base
+  end
+
+  def find_user(token)
+    payload = generate_jwt_token(token).first
+    jti = payload['jti']
+    return nil if jti.blank?
+
+    session = UserSession.find_by(jti: jti)
+    return nil unless session&.active?
+
+    User.find_by(id: payload['user_id'])
   end
 end
