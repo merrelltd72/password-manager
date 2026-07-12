@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_10_021033) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_12_194034) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -117,6 +117,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_10_021033) do
     t.index ["user_id"], name: "index_user_preferences_on_user_id", unique: true
   end
 
+  create_table "user_sessions", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "expires_at", null: false
+    t.string "ip"
+    t.string "jti", null: false
+    t.datetime "revoked_at"
+    t.datetime "updated_at", null: false
+    t.string "user_agent"
+    t.bigint "user_id", null: false
+    t.index ["jti"], name: "index_user_sessions_on_jti", unique: true
+    t.index ["user_id"], name: "index_user_sessions_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "email"
@@ -137,4 +150,5 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_10_021033) do
   add_foreign_key "password_reminders", "users"
   add_foreign_key "tasks", "users"
   add_foreign_key "user_preferences", "users"
+  add_foreign_key "user_sessions", "users"
 end
