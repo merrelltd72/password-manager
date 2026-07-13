@@ -49,4 +49,26 @@ class ApplicationController < ActionController::Base
 
     User.find_by(id: payload['user_id'])
   end
+
+  def issue_jwt(user_id)
+    jti = SecureRandom.uuid
+    exp = 30.minutes.from_now
+
+    token = JWT.encode({ user_id: user_id, jti: jti, exp: exp.to_i },
+                       jwt_secret_key, 'HS256')
+
+    create_user_session(user_id, jti, exp)
+
+    token
+  end
+
+  def create_user_session(user_id, jti, exp)
+    UserSession.create!(
+      user_id: user_id,
+      jti: jti,
+      expires_at: exp,
+      ip: request.remote_ip,
+      user_agent: request.user_agent
+    )
+  end
 end

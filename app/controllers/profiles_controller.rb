@@ -26,7 +26,7 @@ class ProfilesController < ApplicationController
       },
       security: {
         has_2fa: false,
-        active_sessions_supported: false
+        active_sessions_supported: true
       },
       data_controls: {
         last_import_at: current_user.import_runs.where(status: :completed).maximum(:completed_at)&.iso8601,
@@ -54,6 +54,7 @@ class ProfilesController < ApplicationController
       password: password_params[:new_password],
       password_confirmation: password_params[:new_password_confirmation]
     )
+      UserSession.for_user(current_user).active.each(&:revoke!)
       jwt = issue_jwt(current_user.id)
       cookies.signed[:jwt] = { value: jwt, httponly: true }
       render json: { message: 'Password updated successfully' }, status: :ok
@@ -74,6 +75,12 @@ class ProfilesController < ApplicationController
     render json: { message: 'Account deletion successful' }, status: :ok
   rescue ActiveRecord::RecordInvalid => e
     render json: { errors: e.record.errors.full_messages }, status: :unprocessable_entity
+  end
+
+  def sign_out_all
+    UserSession.for_user(current_user).active.each(&:revoke!)
+    cookies.delete(:jwt)
+    render json: { message: 'All sessions signed out successfully' }, status: :ok
   end
 
   private
@@ -99,14 +106,6 @@ class ProfilesController < ApplicationController
     errors.concat(current_user.errors.full_messages)
     errors.concat(current_user.user_preference&.errors&.full_messages || [])
     errors.uniq
-  end
-
-  def issue_jwt(user_id)
-    JWT.encode(
-      { user_id: user_id, exp: 24.hours.from_now.to_i },
-      jwt_secret_key,
-      'HS256'
-    )
   end
 
   def destroy_params

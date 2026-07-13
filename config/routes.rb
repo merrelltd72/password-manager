@@ -42,6 +42,7 @@ Rails.application.routes.draw do
   patch '/profile' => 'profiles#update'
   patch '/profile/password' => 'profiles#update_password'
   delete '/profile' => 'profiles#destroy'
+  post '/profile/sign_out_all' => 'profiles#sign_out_all'
 
   # Password Reminder route
   post '/reminders' => 'password_reminders#create'
