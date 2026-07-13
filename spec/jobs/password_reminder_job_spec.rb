@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe PasswordReminderJob, type: :job do
+RSpec.describe PasswordReminderJob do
   let(:user) do
     User.create!(
       username: 'job-user',

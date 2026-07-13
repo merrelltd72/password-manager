@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'fileutils'
 
-RSpec.describe Exports::CleanupExpiredJob, type: :job do
+RSpec.describe Exports::CleanupExpiredJob do
   let(:user) do
     User.create!(
       username: 'cleanup-job-user',

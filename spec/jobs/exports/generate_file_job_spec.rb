@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe Exports::GenerateFileJob, type: :job do
+RSpec.describe Exports::GenerateFileJob do
   let(:user) do
     User.create!(
       username: 'export-job-user',

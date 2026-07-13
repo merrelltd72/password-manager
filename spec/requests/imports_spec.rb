@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'Imports', type: :request do
+RSpec.describe 'Imports' do
   let(:user) do
     User.create!(
       username: 'importuser',
@@ -35,7 +35,7 @@ RSpec.describe 'Imports', type: :request do
         get '/imports'
 
         expect(response).to have_http_status(:ok)
-        body = JSON.parse(response.body)
+        body = response.parsed_body
 
         expect(body['imports']).to be_an(Array)
         expect(body['imports'].size).to eq(1)
@@ -48,7 +48,7 @@ RSpec.describe 'Imports', type: :request do
         get '/imports', params: { limit: 2 }
 
         expect(response).to have_http_status(:ok)
-        body = JSON.parse(response.body)
+        body = response.parsed_body
         expect(body['imports'].size).to eq(2)
       end
     end

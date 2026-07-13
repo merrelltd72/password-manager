@@ -3,6 +3,7 @@
 # User model representing an individual user of the application, including authentication and associations with accounts, reminders, and activity events.
 class User < ApplicationRecord
   has_many :accounts
+  has_many :user_sessions, dependent: :destroy
   has_many :password_reminders, dependent: :destroy
   has_many :activity_events, dependent: :destroy
   has_many :import_runs, dependent: :destroy

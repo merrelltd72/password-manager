@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe PasswordReminder, type: :model do
+RSpec.describe PasswordReminder do
   let(:user) do
     User.create!(
       username: 'model-user',

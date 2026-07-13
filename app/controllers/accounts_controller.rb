@@ -30,7 +30,7 @@ class AccountsController < ApplicationController
         metadata: { web_app_name: account.web_app_name }
       )
     else
-      render json: { errors: account.errors.full_messages }, status: :unprocessable_entity
+      render json: { errors: account.errors.full_messages }, status: :unprocessable_content
     end
   end
 
@@ -47,7 +47,7 @@ class AccountsController < ApplicationController
       )
     else
       logger.error "Update of account #{@account.web_app_name} unsuccessful."
-      render json: { errors: @account.errors.full_messages }, status: :unprocessable_entity
+      render json: { errors: @account.errors.full_messages }, status: :unprocessable_content
     end
   end
 
@@ -119,7 +119,7 @@ class AccountsController < ApplicationController
     render json: result[:body], status: result[:status]
   rescue JSON::ParserError => e
     import_run.mark_failed!(e.message)
-    render json: { error: 'Invalid JSON file' }, status: :unprocessable_entity
+    render json: { error: 'Invalid JSON file' }, status: :unprocessable_content
   end
 
   def import_rows(rows, import_run)

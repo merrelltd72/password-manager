@@ -2,31 +2,31 @@
 
 require 'rails_helper'
 
-RSpec.describe ImportRun, type: :model do
+RSpec.describe ImportRun do
   let(:user) { User.create!(username: 'runuser', email: 'run@example.com', password: 'Password1!') }
 
   describe 'validations' do
     it 'requires a format' do
-      run = ImportRun.new(user: user)
+      run = described_class.new(user: user)
       expect(run).not_to be_valid
       expect(run.errors[:format]).to be_present
     end
 
     it 'rejects unsupported formats' do
-      run = ImportRun.new(user: user, format: 'xml')
+      run = described_class.new(user: user, format: 'xml')
       expect(run).not_to be_valid
     end
 
     it 'accepts csv, xlsx, and json' do
       %w[csv xlsx json].each do |fmt|
-        run = ImportRun.new(user: user, format: fmt)
+        run = described_class.new(user: user, format: fmt)
         expect(run).to be_valid, "Expected format '#{fmt}' to be valid"
       end
     end
   end
 
   describe 'lifecycle' do
-    let(:run) { ImportRun.create!(user: user, format: 'csv') }
+    let(:run) { described_class.create!(user: user, format: 'csv') }
 
     it 'starts as pending' do
       expect(run.status).to eq('pending')
@@ -63,11 +63,11 @@ RSpec.describe ImportRun, type: :model do
 
   describe '.recent_first' do
     it 'orders runs newest first' do
-      older = ImportRun.create!(user: user, format: 'csv', created_at: 2.hours.ago)
-      newer = ImportRun.create!(user: user, format: 'xlsx', created_at: 1.hour.ago)
+      older = described_class.create!(user: user, format: 'csv', created_at: 2.hours.ago)
+      newer = described_class.create!(user: user, format: 'xlsx', created_at: 1.hour.ago)
 
-      expect(ImportRun.recent_first.first).to eq(newer)
-      expect(ImportRun.recent_first.last).to eq(older)
+      expect(described_class.recent_first.first).to eq(newer)
+      expect(described_class.recent_first.last).to eq(older)
     end
   end
 end

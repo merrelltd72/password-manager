@@ -62,7 +62,7 @@ module Dashboard
       scope = @user.activity_events.order(id: :desc)
       if @cursor.present?
         cursor_id = decode_cursor(@cursor)
-        scope = scope.where('id < ?', cursor_id) if cursor_id
+        scope = scope.where(id: ...cursor_id) if cursor_id
       end
 
       rows = scope.limit(@limit + 1).to_a

@@ -29,7 +29,7 @@ module Profile
 
     def update_preferences!
       pref_params = @params[:preferences]
-      return unless pref_params.present?
+      return if pref_params.blank?
 
       preference = @user.user_preference || @user.build_user_preference
       preference.assign_attributes(

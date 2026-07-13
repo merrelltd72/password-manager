@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'PasswordReminders', type: :request do
+RSpec.describe 'PasswordReminders' do
   let(:user) do
     User.create!(
       username: 'request-user',
@@ -54,7 +54,7 @@ RSpec.describe 'PasswordReminders', type: :request do
 
         post '/reminders', params: params
 
-        expect(response).to have_http_status(422)
+        expect(response).to have_http_status(:unprocessable_content)
         expect(PasswordReminderJob).not_to have_received(:perform_async)
       end
     end

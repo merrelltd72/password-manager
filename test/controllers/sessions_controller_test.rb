@@ -11,9 +11,9 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     post '/users.json',
          params: { username: 'Test', email: 'test@test.com', password: 'password', password_confirmation: 'password' }
     post '/sessions.json', params: { email: 'test@test.com', password: 'password' }
-    assert_response 201
+    assert_response :created
 
-    data = JSON.parse(response.body)
+    data = response.parsed_body
     assert_equal %w[jwt email user_id], data.keys
   end
 end

@@ -22,13 +22,13 @@ class PasswordRemindersController < ApplicationController
         metadata: { account_id: @password_reminder.account_id, reminder_date: @password_reminder.reminder_date }
       )
     else
-      render json: { error: @password_reminder.errors.full_messages }, status: :unprocessable_entity
+      render json: { error: @password_reminder.errors.full_messages }, status: :unprocessable_content
     end
   end
 
   private
 
   def password_reminder_params
-    params.require(:password_reminder).permit(:account_id, :reminder_date).merge(user_id: current_user.id)
+    params.expect(password_reminder: %i[account_id reminder_date]).merge(user_id: current_user.id)
   end
 end

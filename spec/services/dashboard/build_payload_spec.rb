@@ -6,8 +6,8 @@ RSpec.describe Dashboard::BuildPayload, type: :service do
   let(:user) { User.create!(username: 'dashsvc', email: 'dashsvc@example.com', password: 'Password1!') }
   let(:category) { Category.create!(category_type: 'ops') }
 
-  def create_account(web_app_name:, password_digest: 'ValidStr0ng!', **attrs)
-    Account.create!(user: user, category: category, web_app_name: web_app_name, password_digest: password_digest, **attrs)
+  def create_account(web_app_name:, password: 'ValidStr0ng!', **attrs)
+    Account.create!(user: user, category: category, web_app_name: web_app_name, password: password, **attrs)
   end
 
   def create_event(event_type: 'account_created')
@@ -41,8 +41,8 @@ RSpec.describe Dashboard::BuildPayload, type: :service do
     end
 
     it 'counts weak passwords' do
-      create_account(web_app_name: 'A', password_digest: 'short')
-      create_account(web_app_name: 'B', password_digest: 'ValidStr0ng!')
+      create_account(web_app_name: 'A', password: 'short')
+      create_account(web_app_name: 'B', password: 'ValidStr0ng!')
       result = described_class.new(user: user).call
       expect(result[:summary][:weak_password_count]).to eq(1)
     end
@@ -55,13 +55,13 @@ RSpec.describe Dashboard::BuildPayload, type: :service do
     end
 
     it 'decreases score for weak passwords' do
-      create_account(web_app_name: 'A', password_digest: 'weak')
+      create_account(web_app_name: 'A', password: 'weak')
       result = described_class.new(user: user).call
       expect(result[:security][:score]).to be < 100
     end
 
     it 'never goes below 0' do
-      15.times { |i| create_account(web_app_name: "Site#{i}", password_digest: 'weak') }
+      15.times { |i| create_account(web_app_name: "Site#{i}", password: 'weak') }
       result = described_class.new(user: user).call
       expect(result[:security][:score]).to eq(0)
     end
@@ -109,8 +109,8 @@ RSpec.describe Dashboard::BuildPayload, type: :service do
       first  = described_class.new(user: user, limit: 10).call
       second = described_class.new(user: user, limit: 10, cursor: first[:activity][:next_cursor]).call
 
-      first_ids  = first[:activity][:events].map { |e| e[:id] }
-      second_ids = second[:activity][:events].map { |e| e[:id] }
+      first_ids  = first[:activity][:events].pluck(:id)
+      second_ids = second[:activity][:events].pluck(:id)
       expect(first_ids & second_ids).to be_empty
       expect(first_ids.size + second_ids.size).to eq(20)
     end
@@ -119,8 +119,8 @@ RSpec.describe Dashboard::BuildPayload, type: :service do
       baseline = described_class.new(user: user, limit: 10).call
       result   = described_class.new(user: user, limit: 10, cursor: '!!!invalid!!!').call
 
-      expect(result[:activity][:events].map { |e| e[:id] })
-        .to eq(baseline[:activity][:events].map { |e| e[:id] })
+      expect(result[:activity][:events].pluck(:id))
+        .to eq(baseline[:activity][:events].pluck(:id))
     end
 
     it 'clamps limit to MAX_ACTIVITY_LIMIT' do

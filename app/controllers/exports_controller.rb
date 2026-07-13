@@ -5,6 +5,10 @@ class ExportsController < ApplicationController
   before_action :authenticate_user
   before_action :set_export_run, only: %i[show download]
 
+  def show
+    render json: serialize_export(@export_run), status: :ok
+  end
+
   def create
     format = export_params[:format].presence || 'csv'
     run = current_user.export_runs.create!(format: format)
@@ -15,11 +19,7 @@ class ExportsController < ApplicationController
 
     render json: serialize_export(run), status: :accepted
   rescue ActiveRecord::RecordInvalid => e
-    render json: { error: e.record.errors.full_messages }, status: :unprocessable_entity
-  end
-
-  def show
-    render json: serialize_export(@export_run), status: :ok
+    render json: { error: e.record.errors.full_messages }, status: :unprocessable_content
   end
 
   def download
@@ -58,7 +58,7 @@ class ExportsController < ApplicationController
   end
 
   def set_export_run
-    @export_run = current_user.export_runs.find(params[:id])
+    @export_run = current_user.export_runs.find(params.expect(:id))
   rescue ActiveRecord::RecordNotFound
     render json: { error: 'Export not found' }, status: :not_found
   end
