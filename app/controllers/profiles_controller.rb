@@ -41,13 +41,13 @@ class ProfilesController < ApplicationController
     if ok
       show
     else
-      render json: { errors: combined_errors }, status: :unprocessable_entity
+      render json: { errors: combined_errors }, status: :unprocessable_content
     end
   end
 
   def update_password
     unless current_user.authenticate(password_params[:current_password])
-      return render json: { errors: ['Current password is incorrect'] }, status: :unprocessable_entity
+      return render json: { errors: ['Current password is incorrect'] }, status: :unprocessable_content
     end
 
     if current_user.update(
@@ -59,12 +59,12 @@ class ProfilesController < ApplicationController
       cookies.signed[:jwt] = { value: jwt, httponly: true }
       render json: { message: 'Password updated successfully' }, status: :ok
     else
-      render json: { errors: current_user.errors.full_messages }, status: :unprocessable_entity
+      render json: { errors: current_user.errors.full_messages }, status: :unprocessable_content
     end
   end
 
   def destroy
-    return render json: { errors: ['Confirmation required.'] }, status: :unprocessable_entity unless destroy_confirmed?
+    return render json: { errors: ['Confirmation required.'] }, status: :unprocessable_content unless destroy_confirmed?
 
     ActiveRecord::Base.transaction do
       current_user.accounts.find_each(&:destroy!)
@@ -74,7 +74,7 @@ class ProfilesController < ApplicationController
     cookies.delete(:jwt)
     render json: { message: 'Account deletion successful' }, status: :ok
   rescue ActiveRecord::RecordInvalid => e
-    render json: { errors: e.record.errors.full_messages }, status: :unprocessable_entity
+    render json: { errors: e.record.errors.full_messages }, status: :unprocessable_content
   end
 
   def sign_out_all

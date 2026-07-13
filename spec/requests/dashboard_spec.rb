@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'Dashboard', type: :request do
+RSpec.describe 'Dashboard' do
   let(:user) { User.create!(username: 'dashuser', email: 'dash@example.com', password: 'Password1!') }
 
   before do
@@ -14,7 +14,7 @@ RSpec.describe 'Dashboard', type: :request do
     get '/dashboard'
     expect(response).to have_http_status(:ok)
 
-    body = JSON.parse(response.body)
+    body = response.parsed_body
     expect(body).to include('summary', 'security', 'reminders', 'activity', 'empty_state')
   end
 
@@ -29,7 +29,7 @@ RSpec.describe 'Dashboard', type: :request do
 
     get '/dashboard'
 
-    body = JSON.parse(response.body)
+    body = response.parsed_body
     expect(body['activity']['next_cursor']).to be_a(String).and be_present
     expect(body['activity']['events'].size).to eq(15)
   end
@@ -38,11 +38,11 @@ RSpec.describe 'Dashboard', type: :request do
     20.times { ActivityEvent.create!(user: user, event_type: 'account_created') }
 
     get '/dashboard', params: { limit: 10 }
-    first_ids = JSON.parse(response.body).dig('activity', 'events').map { |e| e['id'] }
-    cursor    = JSON.parse(response.body).dig('activity', 'next_cursor')
+    first_ids = response.parsed_body.dig('activity', 'events').pluck('id')
+    cursor    = response.parsed_body.dig('activity', 'next_cursor')
 
     get '/dashboard', params: { limit: 10, cursor: cursor }
-    second_ids = JSON.parse(response.body).dig('activity', 'events').map { |e| e['id'] }
+    second_ids = response.parsed_body.dig('activity', 'events').pluck('id')
 
     expect(first_ids & second_ids).to be_empty
   end

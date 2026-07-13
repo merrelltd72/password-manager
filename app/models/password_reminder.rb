@@ -14,7 +14,7 @@ class PasswordReminder < ApplicationRecord
 
   scope :due_reminders, lambda {
     where(notification_sent: false)
-      .where('reminder_date <= ?', Date.current)
+      .where(reminder_date: ..Date.current)
   }
 
   def mark_notified!

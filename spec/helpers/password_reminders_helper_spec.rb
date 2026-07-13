@@ -12,6 +12,6 @@ require 'rails_helper'
 #     end
 #   end
 # end
-RSpec.describe PasswordRemindersHelper, type: :helper do
+RSpec.describe PasswordRemindersHelper do
   pending "add some examples to (or delete) #{__FILE__}"
 end

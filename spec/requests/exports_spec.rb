@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'Exports', type: :request do
+RSpec.describe 'Exports' do
   let(:user) do
     User.create!(
       username: 'user',
@@ -35,7 +35,7 @@ RSpec.describe 'Exports', type: :request do
 
         expect(response).to have_http_status(:accepted)
 
-        body = JSON.parse(response.body)
+        body = response.parsed_body
         expect(body).to include('id', 'status', 'format')
         expect(body['format']).to eq('csv')
       end
@@ -45,7 +45,7 @@ RSpec.describe 'Exports', type: :request do
 
         expect(response).to have_http_status(:accepted)
 
-        body = JSON.parse(response.body)
+        body = response.parsed_body
         expect(body['format']).to eq('csv')
       end
     end
@@ -68,7 +68,7 @@ RSpec.describe 'Exports', type: :request do
         get "/exports/#{run.id}"
 
         expect(response).to have_http_status(:ok)
-        body = JSON.parse(response.body)
+        body = response.parsed_body
         expect(body['id']).to eq(run.id)
         expect(body['format']).to eq('csv')
       end
@@ -92,7 +92,7 @@ RSpec.describe 'Exports', type: :request do
         get "/exports/#{run.id}"
 
         expect(response).to have_http_status(:ok)
-        body = JSON.parse(response.body)
+        body = response.parsed_body
         expect(body['download_url']).to eq("/exports/#{run.id}/download?token=#{run.download_token}")
       end
 
@@ -107,7 +107,7 @@ RSpec.describe 'Exports', type: :request do
         get "/exports/#{run.id}"
 
         expect(response).to have_http_status(:ok)
-        body = JSON.parse(response.body)
+        body = response.parsed_body
         expect(body['download_url']).to be_nil
       end
 
@@ -122,7 +122,7 @@ RSpec.describe 'Exports', type: :request do
         get "/exports/#{run.id}"
 
         expect(response).to have_http_status(:ok)
-        body = JSON.parse(response.body)
+        body = response.parsed_body
         expect(body['download_url']).to be_nil
       end
     end
@@ -146,7 +146,7 @@ RSpec.describe 'Exports', type: :request do
         run = user.export_runs.create!(
           format: 'csv',
           status: :completed,
-          file_path: Rails.root.join('tmp', 'exports', 'test.csv').to_s,
+          file_path: Rails.root.join('tmp/exports/test.csv').to_s,
           expires_at: 1.day.from_now
         )
         FileUtils.mkdir_p(File.dirname(run.file_path))

@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe PasswordRemindersChannel, type: :channel do
+RSpec.describe PasswordRemindersChannel do
   let(:user) do
     User.create!(
       username: 'channel-user',

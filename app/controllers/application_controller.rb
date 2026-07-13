@@ -6,11 +6,11 @@ class ApplicationController < ActionController::Base
   protect_from_forgery with: :exception, unless: -> { request.format.json? }
 
   def current_user
-    token = cookies.signed[:jwt]
-    return unless token
+    return @current_user if defined?(@current_user)
 
-    begin
-      find_user(token)
+    token = cookies.signed[:jwt]
+    @current_user = begin
+      find_user(token) if token
     rescue JWT::ExpiredSignature, JWT::DecodeError
       nil
     end

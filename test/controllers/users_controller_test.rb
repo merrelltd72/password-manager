@@ -12,7 +12,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
       post '/users.json', params: {
         username: 'Test', email: 'test@example.com', password: 'password', password_Confirmation: 'password'
       }
-      assert_response 201
+      assert_response :created
     end
   end
 end
