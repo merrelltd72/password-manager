@@ -33,10 +33,12 @@ class User < ApplicationRecord
 
   def create_default_user_preference
     create_user_preference!(
-      timezone: 'UTC',
-      date_format: 'MMM d, yyyy',
-      generator_defaults: generator_defaults,
-      reminder_defaults: reminder_defaults
+      {
+        timezone: 'UTC',
+        date_format: 'MMM d, yyyy',
+        generator_defaults: generator_defaults,
+        reminder_defaults: reminder_defaults
+      }
     )
   end
 
